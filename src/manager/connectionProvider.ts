@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Event, EventEmitter, ExtensionContext, TreeDataProvider, window } from "vscode";
 import { CacheKey } from "../common/constant";
-import ParentNode from "../node/connectionNode";
+import {ParentNode} from "../node/parentNode";
 import { SSHConfig } from "../node/sshConfig";
 import AbstractNode from '../node/abstracNode';
 

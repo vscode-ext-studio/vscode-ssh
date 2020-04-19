@@ -12,6 +12,9 @@ import { SSHConfig } from "./sshConfig";
  * contains connection and folder
  */
 export class ParentNode extends AbstractNode {
+    delete(): any {
+        throw new Error("Method not implemented.");
+    }
     openTerminal(): any {
         var sshterm = vscode.window.createTerminal(this.name);
         sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host}`);
@@ -60,5 +63,3 @@ export class ParentNode extends AbstractNode {
     }
 
 }
-
-export default ParentNode
