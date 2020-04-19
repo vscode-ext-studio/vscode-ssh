@@ -1,0 +1,134 @@
+{
+	"name": "vscode-ssh",
+	"displayName": "vscode-ssh",
+	"description": "ssh client for vscode",
+	"version": "1.0.0",
+	"publisher": "cweijan",
+	"engines": {
+		"vscode": "^1.30.0"
+	},
+	"categories": [
+        "Other"
+    ],
+    "keywords": [
+        "ssh",
+        "SSH",
+        "Ssh",
+        "tools",
+        "manager"
+    ],
+    "contributors": [
+        {
+            "name": "cweijan",
+            "email": "cweijan@163.com"
+        }
+    ],
+    "badges": [],
+    "icon": "resources/image/logo.png",
+    "homepage": "https://github.com/cweijan/vscode-ssh/blob/master/README.md",
+    "bugs": {
+        "url": "https://github.com/cweijan/vscode-ssh/issues",
+        "email": "cweijan@163.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cweijan/vscode-ssh"
+    },
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "github-cweijan-ssh",
+					"title": "SSH",
+					"icon": "resources/image/server-container.svg"
+				}
+			]
+		},
+		"views": {
+			"github-cweijan-ssh": [
+				{
+					"id": "github.cweijan.ssh",
+					"name": "SSH"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "ssh.add",
+				"title": "Add Connection",
+				"icon": {
+					"light": "resources/image/light/add.svg",
+					"dark": "resources/image/dark/add.svg"
+				},
+				"category": "SSH"
+			},
+			{
+				"command": "ssh.refresh",
+				"title": "Refresh",
+				"category": "SSH",
+				"icon": {
+					"light": "resources/image/light/refresh.svg",
+					"dark": "resources/image/dark/refresh.svg"
+				}
+			},{
+                "command": "ssh.connection.delete",
+				"title": "Delete connection",
+				"category": "SSH",
+                "icon": "resources/image/delete.png"
+            },  {
+                "command": "ssh.connection.terminal",
+                "title": "Open Terminal",
+                "category": "SSH",
+                "icon": "resources/image/terminal.svg"
+            }
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "ssh.add",
+					"when": "view == github.cweijan.ssh",
+					"group": "navigation@3"
+				},
+				{
+					"command": "ssh.refresh",
+					"when": "view == github.cweijan.ssh",
+					"group": "navigation@2"
+				}
+			],
+			"view/item/context": [
+				{
+                    "command": "ssh.connection.delete",
+                    "when": "view == github.cweijan.ssh && viewItem == connection",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ssh.connection.terminal",
+                    "when": "view == github.cweijan.ssh && viewItem == connection",
+                    "group": "inline@1"
+                }
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./"
+	},
+	"devDependencies": {
+		"@types/node": "^13.11.0",
+		"@types/ssh2": "^0.5.43",
+		"@types/vscode": "^1.44.0",
+		"@typescript-eslint/eslint-plugin": "^2.26.0",
+		"@typescript-eslint/parser": "^2.26.0",
+		"eslint": "^6.8.0",
+		"typescript": "^3.8.3"
+	},
+	"dependencies": {
+		"ssh2": "^0.8.9"
+	}
+}
