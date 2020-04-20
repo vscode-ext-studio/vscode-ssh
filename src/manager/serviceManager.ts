@@ -5,9 +5,11 @@ import ConnectionProvider from "./connectionProvider";
 import { FileManager } from './fileManager';
 
 export default class ServiceManager {
+    public static context: ExtensionContext;
     public provider: ConnectionProvider;
     private isInit = false;
     constructor(private context: ExtensionContext) {
+        ServiceManager.context = context
         ViewManager.initExtesnsionPath(context.extensionPath)
         FileManager.init(context)
     }

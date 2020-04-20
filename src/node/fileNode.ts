@@ -8,13 +8,14 @@ import { FileManager, FileModel } from '../manager/fileManager';
 import AbstractNode from "./abstracNode";
 import { SSHConfig } from "./sshConfig";
 import ConnectionProvider from '../manager/connectionProvider';
+import ServiceManager from '../manager/serviceManager';
 
 export class FileNode extends AbstractNode {
     contextValue = NodeType.FILE;
     fullPath: string;
     constructor(readonly sshConfig: SSHConfig, readonly file: FileEntry, readonly parentName: string) {
         super(file.filename, TreeItemCollapsibleState.None)
-        this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `file.svg`);
+        this.iconPath = this.getIcon(this.file.filename)
         this.fullPath = this.parentName + this.file.filename;
         this.command = {
             command: "ssh.file.open",
@@ -47,7 +48,7 @@ export class FileNode extends AbstractNode {
             if (err) {
                 vscode.window.showErrorMessage(err.message)
             } else {
-                ConnectionProvider.tempRemoteMap.set(path.resolve(tempPath), { remote: this.fullPath, sshConfig:this.sshConfig })
+                ConnectionProvider.tempRemoteMap.set(path.resolve(tempPath), { remote: this.fullPath, sshConfig: this.sshConfig })
                 vscode.commands.executeCommand('vscode.open', vscode.Uri.file(tempPath))
             }
         })
@@ -74,4 +75,32 @@ export class FileNode extends AbstractNode {
                 }
             })
     }
+
+    getIcon(fileName: string): string {
+
+        const extPath = ServiceManager.context.extensionPath;
+
+        const ext = path.extname(fileName).replace(".", "")
+        let fileIcon;
+        switch (ext) {
+            case 'pem': fileIcon = "keys.svg"; break;
+            case 'ts': fileIcon = "typescript.svg"; break;
+            case 'log': fileIcon = "log.svg"; break;
+            case 'sql': fileIcon = "sql.svg"; break;
+            case 'xml': fileIcon = "xml.svg"; break;
+            case 'html': fileIcon = "html.svg"; break;
+            case 'java': case 'class': fileIcon = "java.svg"; break;
+            case 'js': case 'map': fileIcon = "javascript.svg"; break;
+            case 'json': fileIcon = "json.svg"; break;
+            case 'sh': fileIcon = "console.svg"; break;
+            case 'cfg': case 'conf': fileIcon = "settings.svg"; break;
+            case 'rar': case 'zip': case '7z': case 'gz': case 'tar': fileIcon = "zip.svg"; break;
+            default: fileIcon = "file.svg"; break;
+
+        }
+
+        return `${extPath}/resources/image/icon/${fileIcon}`
+    }
+
+
 }
