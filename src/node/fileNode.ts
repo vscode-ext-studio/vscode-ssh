@@ -7,7 +7,6 @@ import { FileEntry } from "ssh2-streams";
 import { ClientManager } from '../manager/clientManager';
 import { Command } from '../common/constant';
 import { NodeType } from "../common/constant";
-const upath = require('upath');
 
 export class FileNode extends AbstractNode {
     contextValue = NodeType.FILE;
@@ -32,7 +31,7 @@ export class FileNode extends AbstractNode {
                 const { sftp } = await ClientManager.getSSH(this.sshConfig)
                 sftp.unlink(this.fullPath, (err) => {
                     if (err) {
-                        vscode.window.showErrorMessage(err)
+                        vscode.window.showErrorMessage(err.message)
                     } else {
                         vscode.commands.executeCommand(Command.REFRESH)
                     }
@@ -42,6 +41,18 @@ export class FileNode extends AbstractNode {
     }
     async open() {
         const { sftp } = await ClientManager.getSSH(this.sshConfig)
+
+        // const stream = sftp.createReadStream(this.fullPath, { autoClose: true });
+        // const bufs = [];
+        // stream.on('data', bufs.push.bind(bufs));
+        // stream.on('error', err => {
+        //     console.log(err)
+        // });
+        // stream.on('close', () => {
+        //     writeFileSync(targetPath, Buffer.concat(bufs))
+        //     vscode.window.showInformationMessage(`cost ${new Date().getTime() - start.getTime()}!`)
+        // });
+
         sftp.readFile(this.fullPath, async (err, buffer) => {
             if (err) {
                 vscode.window.showErrorMessage(err)
@@ -60,15 +71,22 @@ export class FileNode extends AbstractNode {
         }
         return ext;
     }
+
     download(): any {
 
         vscode.window.showOpenDialog({ canSelectFiles: false, canSelectMany: false, canSelectFolders: true, openLabel: "Select Download Path" })
             .then(async uri => {
                 if (uri) {
                     const { sftp } = await ClientManager.getSSH(this.sshConfig)
-                    sftp.fastGet(this.fullPath, upath.toUnix(uri[0].fsPath), (err) => {
+                    const start = new Date()
+                    const targetPath = uri[0].fsPath + "/" + this.file.filename;
+
+                    vscode.window.showInformationMessage(`Start downloading ${this.fullPath}.`)
+                    sftp.fastGet(this.fullPath, targetPath, (err) => {
                         if (err) {
                             vscode.window.showErrorMessage(err.message)
+                        } else {
+                            vscode.window.showInformationMessage(`Download ${this.fullPath} success, cost time: ${new Date().getTime() - start.getTime()}`)
                         }
                     })
 

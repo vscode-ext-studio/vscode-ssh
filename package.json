@@ -99,11 +99,15 @@
 			},
 			{
 				"command": "ssh.file.delete",
-				"title": "Delete File"
+				"title": "Delete"
 			},
 			{
 				"command": "ssh.file.download",
 				"title": "Download File"
+			},
+			{
+				"command": "ssh.file.upload",
+				"title": "Upload File"
 			}
 		],
 		"menus": {
@@ -151,9 +155,14 @@
 					"group": "folder@1"
 				},
 				{
-					"command": "ssh.file.delete",
+					"command": "ssh.file.upload",
 					"when": "view == github.cweijan.ssh && viewItem == folder",
 					"group": "folder@2"
+				},
+				{
+					"command": "ssh.file.delete",
+					"when": "view == github.cweijan.ssh && viewItem == folder",
+					"group": "folder@3"
 				},
 				{
 					"command": "ssh.file.download",
@@ -184,7 +193,6 @@
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
-		"ssh2": "^0.8.9",
-		"upath": "^1.2.0"
+		"ssh2": "^0.8.9"
 	}
 }

@@ -37,7 +37,7 @@ export class ClientManager {
                 port: sshConfig.port,
                 username: sshConfig.username,
                 password: sshConfig.password
-                // privateKey: require('fs').readFileSync('/here/is/my/key')
+                // privateKey: require('fs').readFileSync('C:\\Users\\cweijan\\.ssh\\id_rsa')
             });
         })
 
