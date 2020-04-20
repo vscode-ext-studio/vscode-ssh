@@ -57,9 +57,6 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
         let password = await window.showInputBox({ prompt: "The password to connect to.", placeHolder: "The password to connect to.", ignoreFocusOut: true });
         if (password === undefined) {
             return;
-        } else if (password === '') {
-            window.showInformationMessage("you must input password")
-            return;
         }
 
         const id = `${username}@${host}:${port}`;

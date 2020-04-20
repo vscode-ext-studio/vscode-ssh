@@ -11,7 +11,6 @@ export class ClientManager {
 
     private static activeClient: { [key: string]: SSH } = {};
 
-    // thanks: https://www.npmjs.com/package/ssh2
     public static getSSH(sshConfig: SSHConfig): Promise<SSH> {
 
         const key = `${sshConfig.host}_${sshConfig.port}_${sshConfig.username}`;
@@ -32,13 +31,7 @@ export class ClientManager {
                 resolve(null)
             }).on('end', () => {
                 this.activeClient[key] = null
-            }).connect({
-                host: sshConfig.host,
-                port: sshConfig.port,
-                username: sshConfig.username,
-                password: sshConfig.password
-                // privateKey: require('fs').readFileSync('C:\\Users\\cweijan\\.ssh\\id_rsa')
-            });
+            }).connect(sshConfig);
         })
 
     }

@@ -7,6 +7,8 @@ import { FileEntry } from "ssh2-streams";
 import { ClientManager } from '../manager/clientManager';
 import { Command } from '../common/constant';
 import { NodeType } from "../common/constant";
+import { writeFileSync } from 'fs';
+import { FileManager, FileModel } from '../manager/fileManager';
 
 export class FileNode extends AbstractNode {
     contextValue = NodeType.FILE;
@@ -41,27 +43,12 @@ export class FileNode extends AbstractNode {
     }
     async open() {
         const { sftp } = await ClientManager.getSSH(this.sshConfig)
-
-        // const stream = sftp.createReadStream(this.fullPath, { autoClose: true });
-        // const bufs = [];
-        // stream.on('data', bufs.push.bind(bufs));
-        // stream.on('error', err => {
-        //     console.log(err)
-        // });
-        // stream.on('close', () => {
-        //     writeFileSync(targetPath, Buffer.concat(bufs))
-        //     vscode.window.showInformationMessage(`cost ${new Date().getTime() - start.getTime()}!`)
-        // });
-
-        sftp.readFile(this.fullPath, async (err, buffer) => {
+        const tempPath = await FileManager.record(`temp/${this.file.filename}`, null, FileModel.WRITE);
+        sftp.fastGet(this.fullPath, tempPath, async (err) => {
             if (err) {
-                vscode.window.showErrorMessage(err)
+                vscode.window.showErrorMessage(err.message)
             } else {
-                const ext = path.extname(this.fullPath).replace(".", "");
-                const language = this.getLanguageByExt(ext);
-                vscode.window.showTextDocument(
-                    await vscode.workspace.openTextDocument({ content: buffer.toString(), language })
-                );
+                vscode.commands.executeCommand('vscode.open', vscode.Uri.file(tempPath))
             }
         })
     }

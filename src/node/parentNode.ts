@@ -7,7 +7,7 @@ import { ClientManager } from "../manager/clientManager";
 import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
-import { FileManager } from '../manager/fileManager';
+import { FileManager, FileModel } from '../manager/fileManager';
 
 /**
  * contains connection and folder
@@ -17,7 +17,7 @@ export class ParentNode extends AbstractNode {
         vscode.window.showInputBox().then(async input => {
             if (input) {
                 const { sftp } = await ClientManager.getSSH(this.sshConfig)
-                const tempPath = await FileManager.record("temp/" + input, "");
+                const tempPath = await FileManager.record("temp/" + input, "", FileModel.WRITE);
                 const targetPath = this.fullPath + "/" + input;
                 sftp.fastPut(tempPath, targetPath, err => {
                     if (err) {
