@@ -1,14 +1,13 @@
-import * as path from 'path'
+import * as path from 'path';
+import { FileEntry } from "ssh2-streams";
 import * as vscode from 'vscode';
 import { TreeItemCollapsibleState } from "vscode";
+import { Command, NodeType } from '../common/constant';
+import { ClientManager } from '../manager/clientManager';
+import { FileManager, FileModel } from '../manager/fileManager';
 import AbstractNode from "./abstracNode";
 import { SSHConfig } from "./sshConfig";
-import { FileEntry } from "ssh2-streams";
-import { ClientManager } from '../manager/clientManager';
-import { Command } from '../common/constant';
-import { NodeType } from "../common/constant";
-import { writeFileSync } from 'fs';
-import { FileManager, FileModel } from '../manager/fileManager';
+import ConnectionProvider from '../manager/connectionProvider';
 
 export class FileNode extends AbstractNode {
     contextValue = NodeType.FILE;
@@ -48,15 +47,10 @@ export class FileNode extends AbstractNode {
             if (err) {
                 vscode.window.showErrorMessage(err.message)
             } else {
+                ConnectionProvider.tempRemoteMap.set(path.resolve(tempPath), { remote: this.fullPath, sshConfig:this.sshConfig })
                 vscode.commands.executeCommand('vscode.open', vscode.Uri.file(tempPath))
             }
         })
-    }
-    getLanguageByExt(ext: string): string {
-        switch (ext) {
-            case 'htm': return 'html';
-        }
-        return ext;
     }
 
     download(): any {

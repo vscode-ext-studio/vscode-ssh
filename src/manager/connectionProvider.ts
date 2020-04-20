@@ -1,16 +1,27 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { Event, EventEmitter, ExtensionContext, TreeDataProvider, window } from "vscode";
-import { CacheKey } from "../common/constant";
-import {ParentNode} from "../node/parentNode";
+import { CacheKey, Command } from "../common/constant";
+import { ParentNode } from "../node/parentNode";
 import { SSHConfig } from "../node/sshConfig";
 import AbstractNode from '../node/abstracNode';
+import { ClientManager } from './clientManager';
 
 
 export default class ConnectionProvider implements TreeDataProvider<AbstractNode> {
     _onDidChangeTreeData: EventEmitter<AbstractNode> = new EventEmitter<AbstractNode>();
     readonly onDidChangeTreeData: Event<AbstractNode> = this._onDidChangeTreeData.event;
+    public static tempRemoteMap = new Map<string, { remote: string, sshConfig: SSHConfig }>()
 
-    constructor(private context: ExtensionContext) { }
+    constructor(private context: ExtensionContext) {
+        vscode.workspace.onDidSaveTextDocument(e => {
+            const tempPath = path.resolve(e.fileName);
+            const data = ConnectionProvider.tempRemoteMap.get(tempPath)
+            if (data) {
+                this.saveFile(tempPath, data.remote, data.sshConfig)
+            }
+        })
+    }
     getTreeItem(element: AbstractNode): vscode.TreeItem {
         return element;
     }
@@ -26,6 +37,18 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
         } else {
             return element.getChildren()
         }
+    }
+
+    async saveFile(tempPath: string, remotePath: string, sshConfig: SSHConfig) {
+        const { sftp } = await ClientManager.getSSH(sshConfig)
+        sftp.fastPut(tempPath, remotePath, async (err) => {
+            if (err) {
+                vscode.window.showErrorMessage(err.message)
+            } else {
+                vscode.commands.executeCommand(Command.REFRESH)
+                vscode.window.showInformationMessage("Update to remote success!")
+            }
+        })
     }
 
     refresh() {
