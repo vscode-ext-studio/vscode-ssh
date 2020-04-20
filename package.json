@@ -186,11 +186,11 @@
 	"devDependencies": {
 		"@types/node": "^13.11.0",
 		"@types/ssh2": "^0.5.43",
-		"@types/vscode": "^1.44.0",
 		"@typescript-eslint/eslint-plugin": "^2.26.0",
 		"@typescript-eslint/parser": "^2.26.0",
 		"eslint": "^6.8.0",
-		"typescript": "^3.8.3"
+		"typescript": "^3.8.3",
+		"vscode": "^1.1.36"
 	},
 	"dependencies": {
 		"ssh2": "^0.8.9"
