@@ -8,11 +8,19 @@ import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { FileManager, FileModel } from '../manager/fileManager';
+import ServiceManager from '../manager/serviceManager';
 
 /**
  * contains connection and folder
  */
 export class ParentNode extends AbstractNode {
+    openInTeriminal(): any {
+        if (!vscode.window.activeTerminal) {
+            vscode.window.showErrorMessage("You must open terminal.")
+        } else {
+            vscode.window.activeTerminal.sendText(`cd ${this.fullPath}`)
+        }
+    }
     newFile(): any {
         vscode.window.showInputBox().then(async input => {
             if (input) {
@@ -104,10 +112,13 @@ export class ParentNode extends AbstractNode {
         this.fullPath = this.parentName + this.name;
         if (!file) {
             this.contextValue = NodeType.CONNECTION;
-            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `connection.svg`);
+            this.iconPath = `${ServiceManager.context.extensionPath}/resources/image/connection.svg`;
         } else {
             this.contextValue = NodeType.FOLDER;
-            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `folder.svg`);
+            this.iconPath = `${ServiceManager.context.extensionPath}/resources/image/folder.svg`;
+        }
+        if (file && file.filename.toLocaleLowerCase() == "home") {
+            this.iconPath = `${ServiceManager.context.extensionPath}/resources/image/folder-core.svg`;
         }
     }
 
