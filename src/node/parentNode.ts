@@ -9,10 +9,35 @@ import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { FileManager, FileModel } from '../manager/fileManager';
 
+
+interface ParentModel {
+    file: FileEntry;
+    parentName: string;
+    iconPath: string;
+    nodeType: NodeType;
+}
+
 /**
  * contains connection and folder
  */
 export class ParentNode extends AbstractNode {
+
+    constructor(readonly sshConfig: SSHConfig, readonly name: string, readonly file?: FileEntry, readonly parentName?: string, iconPath?: string) {
+        super(name, TreeItemCollapsibleState.Collapsed);
+        this.id = file ? `${sshConfig.username}@${sshConfig.host}_${sshConfig.port}_${parentName}.${name}` : name;
+        this.fullPath = this.parentName + this.name;
+        if (!file) {
+            this.contextValue = NodeType.CONNECTION;
+            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `connection.svg`);
+        } else {
+            this.contextValue = NodeType.FOLDER;
+            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `folder.svg`);
+        }
+        if (iconPath) {
+            this.iconPath = iconPath;
+        }
+    }
+
     newFile(): any {
         vscode.window.showInputBox().then(async input => {
             if (input) {
@@ -31,6 +56,7 @@ export class ParentNode extends AbstractNode {
             }
         })
     }
+
     newFolder(): any {
         vscode.window.showInputBox().then(async input => {
             if (input) {
@@ -47,6 +73,7 @@ export class ParentNode extends AbstractNode {
             }
         })
     }
+
     upload(): any {
         vscode.window.showOpenDialog({ canSelectFiles: true, canSelectMany: false, canSelectFolders: false, openLabel: "Select Download Path" })
             .then(async uri => {
@@ -66,7 +93,6 @@ export class ParentNode extends AbstractNode {
                 }
             })
     }
-    private readonly sendConfirm = "SEND PASSWORD";
 
     delete(): any {
         vscode.window.showQuickPick(["YES", "NO"], { canPickMany: false }).then(async str => {
@@ -84,30 +110,19 @@ export class ParentNode extends AbstractNode {
     }
 
     openTerminal(): any {
-
+        const sendConfirm = "SEND PASSWORD";
         const sshterm = vscode.window.activeTerminal ? vscode.window.activeTerminal : vscode.window.createTerminal(this.name);
         sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host} -o StrictHostKeyChecking=no `);
         sshterm.show();
         if (this.sshConfig.password != null) {
-            vscode.window.showQuickPick([this.sendConfirm], { ignoreFocusOut: true }).then(res => {
-                if (res == this.sendConfirm) {
+            vscode.window.showQuickPick([sendConfirm], { ignoreFocusOut: true }).then(res => {
+                if (res == sendConfirm) {
                     sshterm.sendText(this.sshConfig.password)
                 }
             })
         }
     }
-    constructor(readonly sshConfig: SSHConfig, readonly name: string, readonly file?: FileEntry, readonly parentName?: string) {
-        super(name, TreeItemCollapsibleState.Collapsed);
-        this.id = file ? `${sshConfig.username}@${sshConfig.host}_${sshConfig.port}_${parentName}.${name}` : name;
-        this.fullPath = this.parentName + this.name;
-        if (!file) {
-            this.contextValue = NodeType.CONNECTION;
-            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `connection.svg`);
-        } else {
-            this.contextValue = NodeType.FOLDER;
-            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `folder.svg`);
-        }
-    }
+
 
     async getChildren(): Promise<AbstractNode[]> {
 
@@ -122,18 +137,29 @@ export class ParentNode extends AbstractNode {
                     resolve([]);
                     return;
                 }
-                resolve(fileList.map((file) => {
-                    const parentName = this.file ? `${this.parentName + this.name}/` : '/';
-                    if (file.longname.startsWith("d")) {
-                        return new ParentNode(this.sshConfig, file.filename, file, parentName)
-                    } else if (file.longname.startsWith("l")) {
-                        return new ParentNode(this.sshConfig, file.filename, file, parentName)
-                    } else {
-                        return new FileNode(this.sshConfig, file, parentName)
-                    }
-                }))
+                const parent = this.file ? `${this.parentName + this.name}/` : '/';
+                resolve(this.build(fileList,parent))
             })
         })
+    }
+
+    build(entryList: FileEntry[], parentName: string): AbstractNode[] {
+
+        const folderList: ParentNode[] = []
+        const fileList: FileNode[] = []
+
+        for (const entry of entryList) {
+            if (entry.longname.startsWith("d")) {
+                folderList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
+            } else if (entry.longname.startsWith("l")) {
+                folderList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
+            } else {
+                fileList.push(new FileNode(this.sshConfig, entry, parentName))
+            }
+        }
+
+        return [].concat(folderList.sort((a, b) => a.name.localeCompare(b.name)))
+            .concat(fileList.sort((a, b) => a.file.filename.localeCompare(b.file.filename)));
     }
 
 }
