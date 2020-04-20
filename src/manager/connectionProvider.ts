@@ -33,8 +33,8 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
             const config = this.getConnections();
             const nodes = Object.keys(config).map(key => {
                 const sshConfig = config[key];
-                if (sshConfig.privateKey) {
-                    sshConfig.privateKey = require('fs').readFileSync(sshConfig.privateKey)
+                if (sshConfig.private) {
+                    sshConfig.privateKey = require('fs').readFileSync(sshConfig.private)
                 }
                 return new ParentNode(sshConfig, key);
             });
@@ -72,7 +72,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
                 if (!sshConfig.username) {
                     msg = "You must input username!"
                 }
-                if (!sshConfig.password && !sshConfig.privateKey) {
+                if (!sshConfig.password && !sshConfig.private) {
                     msg = "You must input password!"
                 }
                 if (!sshConfig.host) {

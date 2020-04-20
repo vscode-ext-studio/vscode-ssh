@@ -86,15 +86,17 @@ export class ParentNode extends AbstractNode {
     openTerminal(): any {
 
         const sshterm = vscode.window.activeTerminal ? vscode.window.activeTerminal : vscode.window.createTerminal(this.name);
-        sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host} -o StrictHostKeyChecking=no `);
+        sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host} -o StrictHostKeyChecking=no ${this.sshConfig.private ? ` -i ${this.sshConfig.private}` : ''} `);
         sshterm.show();
-        if (this.sshConfig.password != null) {
+        const auth = this.sshConfig.password || this.sshConfig.passphrase;
+        if (auth) {
             vscode.window.showQuickPick([this.sendConfirm], { ignoreFocusOut: true }).then(res => {
                 if (res == this.sendConfirm) {
                     sshterm.sendText(this.sshConfig.password)
                 }
             })
         }
+
     }
     constructor(readonly sshConfig: SSHConfig, readonly name: string, readonly file?: FileEntry, readonly parentName?: string) {
         super(name, TreeItemCollapsibleState.Collapsed);

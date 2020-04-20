@@ -11,11 +11,6 @@
 <body>
     <div class="container" id='container'>
         <h1>Add SSH Config</h1>
-        <ul class="tab" id="tabs">
-            <li class="tab__item tab__item--active">
-                MySQL
-            </li>
-        </ul>
         <blockquote class="panel" id="error" v-if="error">
             <p class="panel__text">
                 Connection error! <span id="errorMessage" v-text="errorMessage"></span><br />
@@ -60,7 +55,7 @@
             <div>
                 <div class="field field__input">
                     <b>privateKey:</b>
-                    <input class="field__input" type="privateKey" v-model="connectionOption.privateKey" />
+                    <input class="field__input" type="privateKey" v-model="connectionOption.private" />
                 </div>
             </div>
             <div>
@@ -87,7 +82,7 @@
                     port: '22',
                     username: 'root',
                     password: '',
-                    privateKey: '',
+                    private: '',
                     passphrase: '',
                 },
                 type: 'password',
