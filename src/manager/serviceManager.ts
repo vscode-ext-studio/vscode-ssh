@@ -2,15 +2,17 @@ import * as vscode from 'vscode';
 import { Disposable, ExtensionContext } from "vscode";
 import { ViewManager } from "../common/viewManager";
 import ConnectionProvider from "./connectionProvider";
+import { FileManager } from './fileManager';
 
 export default class ServiceManager {
     public provider: ConnectionProvider;
     private isInit = false;
     constructor(private context: ExtensionContext) {
+        ViewManager.initExtesnsionPath(context.extensionPath)
+        FileManager.init(context)
     }
 
     public init(): Disposable[] {
-        ViewManager.initExtesnsionPath(this.context.extensionPath)
         if (this.isInit) return []
         const res: Disposable[] = []
         this.provider = new ConnectionProvider(this.context)
