@@ -29,7 +29,7 @@ export class ViewOption {
 export class ViewManager {
 
     private static extensionPath: string;
-    private static viewStatu: { [key: string]: { instance: WebviewPanel, creating: boolean, receiveListener: (viewPanel: WebviewPanel, message: any) => void } } = {};
+    private static viewStatu: { [key: string]: { instance: WebviewPanel, creating: boolean, initListener: (viewPanel: WebviewPanel) => void, receiveListener: (viewPanel: WebviewPanel, message: any) => void } } = {};
     public static initExtesnsionPath(extensionPath: string) {
         this.extensionPath = extensionPath;
     }
@@ -39,16 +39,19 @@ export class ViewManager {
      * @param viewOption 
      */
     public static createWebviewPanel(viewOption: ViewOption): Promise<void> {
-        // TODO creating 应该return 
         if (typeof (viewOption.singlePage) == 'undefined') viewOption.singlePage = true
         if (typeof (viewOption.killHidden) == 'undefined') viewOption.killHidden = true
 
         const currentStatus = this.viewStatu[viewOption.viewType]
-        if (viewOption.singlePage && currentStatus && !currentStatus.creating) {
+        if (viewOption.singlePage && currentStatus) {
             if (viewOption.killHidden && currentStatus.instance.visible == false) {
                 currentStatus.instance.dispose()
             } else {
-                viewOption.initListener(currentStatus.instance)
+                if (currentStatus.creating) {
+                    currentStatus.initListener = viewOption.initListener
+                } else if (viewOption.initListener) {
+                    viewOption.initListener(currentStatus.instance)
+                }
                 if (viewOption.receiveListener) currentStatus.receiveListener = viewOption.receiveListener
                 return Promise.resolve(null);
             }
@@ -75,6 +78,7 @@ export class ViewManager {
                 ViewManager.viewStatu[viewOption.viewType] = {
                     creating: true,
                     instance: webviewPanel,
+                    initListener: viewOption.initListener,
                     receiveListener: viewOption.receiveListener
                 }
                 webviewPanel.onDidDispose(() => {
@@ -84,7 +88,9 @@ export class ViewManager {
                 webviewPanel.webview.onDidReceiveMessage((message) => {
                     if (message.type == 'init') {
                         newStatus.creating = false
-                        if (viewOption.initListener) { viewOption.initListener(webviewPanel) }
+                        if (newStatus.initListener) {
+                            newStatus.initListener(webviewPanel)
+                        }
                     } else if (newStatus.receiveListener) {
                         newStatus.receiveListener(webviewPanel, message)
                     }
