@@ -7,6 +7,7 @@ import { SSHConfig } from "../node/sshConfig";
 import AbstractNode from '../node/abstracNode';
 import { ClientManager } from './clientManager';
 import { ViewManager } from '../common/viewManager';
+import { existsSync } from 'fs';
 
 
 export default class ConnectionProvider implements TreeDataProvider<AbstractNode> {
@@ -33,7 +34,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
             const config = this.getConnections();
             const nodes = Object.keys(config).map(key => {
                 const sshConfig = config[key];
-                if (sshConfig.private) {
+                if (sshConfig.private && existsSync(sshConfig.private)) {
                     sshConfig.privateKey = require('fs').readFileSync(sshConfig.private)
                 }
                 return new ParentNode(sshConfig, key);

@@ -126,6 +126,14 @@ export class ParentNode extends AbstractNode {
 
     }
 
+    openInTeriminal(): any {
+        if (!vscode.window.activeTerminal) {
+            vscode.window.showErrorMessage("You must open terminal.")
+        } else {
+            vscode.window.activeTerminal.sendText(`cd ${this.fullPath}`)
+        }
+    }
+
     async getChildren(): Promise<AbstractNode[]> {
 
         const ssh = await ClientManager.getSSH(this.sshConfig)
@@ -140,7 +148,7 @@ export class ParentNode extends AbstractNode {
                     return;
                 }
                 const parent = this.file ? `${this.parentName + this.name}/` : '/';
-                resolve(this.build(fileList,parent))
+                resolve(this.build(fileList, parent))
             })
         })
     }
