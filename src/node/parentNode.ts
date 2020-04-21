@@ -34,7 +34,9 @@ export class ParentNode extends AbstractNode {
             this.contextValue = NodeType.FOLDER;
             this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `folder.svg`);
         }
-        if (iconPath) {
+        if (file && file.filename.toLocaleLowerCase() == "home") {
+            this.iconPath = `${ServiceManager.context.extensionPath}/resources/image/folder-core.svg`;
+        }else if (iconPath) {
             this.iconPath = iconPath;
         }
     }

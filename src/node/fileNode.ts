@@ -80,10 +80,10 @@ export class FileNode extends AbstractNode {
 
         const extPath = ServiceManager.context.extensionPath;
 
-        const ext = path.extname(fileName).replace(".", "")
+        const ext = path.extname(fileName).replace(".", "").toLowerCase()
         let fileIcon;
         switch (ext) {
-            case 'pem': fileIcon = "keys.svg"; break;
+            case 'pub': case 'pem': fileIcon = "key.svg"; break;
             case 'ts': fileIcon = "typescript.svg"; break;
             case 'log': fileIcon = "log.svg"; break;
             case 'sql': fileIcon = "sql.svg"; break;
