@@ -8,6 +8,7 @@ import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { FileManager, FileModel } from '../manager/fileManager';
+import ServiceManager from '../manager/serviceManager';
 
 
 interface ParentModel {
@@ -112,17 +113,18 @@ export class ParentNode extends AbstractNode {
     openTerminal(): any {
         const sendConfirm = "SEND PASSWORD";
         const sshterm = vscode.window.activeTerminal ? vscode.window.activeTerminal : vscode.window.createTerminal(this.name);
-        sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host} -o StrictHostKeyChecking=no `);
+        sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host} -o StrictHostKeyChecking=no ${this.sshConfig.private ? ` -i ${this.sshConfig.private}` : ''} `);
         sshterm.show();
-        if (this.sshConfig.password != null) {
+        const auth = this.sshConfig.password || this.sshConfig.passphrase;
+        if (auth) {
             vscode.window.showQuickPick([sendConfirm], { ignoreFocusOut: true }).then(res => {
                 if (res == sendConfirm) {
                     sshterm.sendText(this.sshConfig.password)
                 }
             })
         }
-    }
 
+    }
 
     async getChildren(): Promise<AbstractNode[]> {
 

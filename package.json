@@ -98,6 +98,10 @@
 				"title": "New Folder"
 			},
 			{
+				"command": "ssh.folder.open",
+				"title": "Open In Terminal"
+			},
+			{
 				"command": "ssh.file.delete",
 				"title": "Delete"
 			},
@@ -160,9 +164,14 @@
 					"group": "folder@2"
 				},
 				{
-					"command": "ssh.file.delete",
+					"command": "ssh.folder.open",
 					"when": "view == github.cweijan.ssh && viewItem == folder",
 					"group": "folder@3"
+				},
+				{
+					"command": "ssh.file.delete",
+					"when": "view == github.cweijan.ssh && viewItem == folder",
+					"group": "folder@4"
 				},
 				{
 					"command": "ssh.file.download",

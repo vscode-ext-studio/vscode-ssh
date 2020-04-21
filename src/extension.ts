@@ -22,6 +22,7 @@ export function activate(context: ExtensionContext) {
         commands.registerCommand('ssh.folder.new', (parentNode: ParentNode) => parentNode.newFolder()),
         commands.registerCommand('ssh.file.new', (parentNode: ParentNode) => parentNode.newFile()),
         commands.registerCommand('ssh.file.upload', (parentNode: ParentNode) => parentNode.upload()),
+        commands.registerCommand('ssh.folder.open', (parentNode: ParentNode) => parentNode.openInTeriminal()),
         commands.registerCommand('ssh.file.delete', (fileNode: FileNode | ParentNode) => fileNode.delete()),
         commands.registerCommand('ssh.file.open', (fileNode: FileNode) => fileNode.open()),
         commands.registerCommand('ssh.file.download', (fileNode: FileNode) => fileNode.download()),

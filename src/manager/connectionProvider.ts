@@ -6,6 +6,7 @@ import { ParentNode } from "../node/parentNode";
 import { SSHConfig } from "../node/sshConfig";
 import AbstractNode from '../node/abstracNode';
 import { ClientManager } from './clientManager';
+import { ViewManager } from '../common/viewManager';
 
 
 export default class ConnectionProvider implements TreeDataProvider<AbstractNode> {
@@ -31,7 +32,11 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
         if (!element) {
             const config = this.getConnections();
             const nodes = Object.keys(config).map(key => {
-                return new ParentNode(config[key], key);
+                const sshConfig = config[key];
+                if (sshConfig.private) {
+                    sshConfig.privateKey = require('fs').readFileSync(sshConfig.private)
+                }
+                return new ParentNode(sshConfig, key);
             });
             return nodes
         } else {
@@ -56,41 +61,43 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
     }
 
     async add() {
-        let host = await window.showInputBox({ prompt: "The hostname of the redis.", placeHolder: "host (default 127.0.0.1)", ignoreFocusOut: true });
-        if (host === undefined) {
-            return;
-        } else if (host === '') {
-            host = '127.0.0.1';
-        }
 
-        let port = await window.showInputBox({ prompt: "The port number to connect to.", placeHolder: "port (default 22)", ignoreFocusOut: true });
-        if (port === undefined) {
-            return;
-        } else if (port === '') {
-            port = '22';
-        }
-        let username = await window.showInputBox({ prompt: "The username to connect to.", placeHolder: "The username to connect to.", ignoreFocusOut: true });
-        if (username === undefined) {
-            return;
-        } else if (username === '') {
-            window.showInformationMessage("you must input username")
-            return;
-        }
+        ViewManager.createWebviewPanel({
+            viewPath: "connect", viewType: "cwejian.redis.connection",
+            splitResultView: false, viewTitle: "Add SSH Config",
+            receiveListener: (viewPanel, message: any) => {
 
-        let password = await window.showInputBox({ prompt: "The password to connect to.", placeHolder: "The password to connect to.", ignoreFocusOut: true });
-        if (password === undefined) {
-            return;
-        }
+                const sshConfig: SSHConfig = message.connectionOption
+                let msg = null;
+                if (!sshConfig.username) {
+                    msg = "You must input username!"
+                }
+                if (!sshConfig.password && !sshConfig.private) {
+                    msg = "You must input password!"
+                }
+                if (!sshConfig.host) {
+                    msg = "You must input host!"
+                }
+                if (!sshConfig.port) {
+                    msg = "You must input port!"
+                }
+                if (msg) {
+                    viewPanel.webview.postMessage({
+                        type: 'CONNECTION_ERROR',
+                        err: msg,
+                    });
+                    return;
+                }
 
-        const id = `${username}@${host}:${port}`;
+                const id = `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
+                const configs = this.getConnections();
+                configs[id] = sshConfig;
+                this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
+                viewPanel.dispose();
+                this.refresh();
+            }
+        })
 
-        const redisConfig = { host, port: parseInt(port), username, password }
-
-        const configs = this.getConnections();
-        configs[id] = redisConfig;
-        this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
-
-        this.refresh();
     }
 
     delete(element: ParentNode) {
