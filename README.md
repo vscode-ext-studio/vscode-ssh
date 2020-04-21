@@ -6,7 +6,6 @@
 - Convenient to connect to ssh in terminal.
 - Convenient opearation ssh.
 
-
-## Feature Plain
-- Beautify connect page.
-- Support privatekey and passphare.
+## Usage
+1. Open SSH view.
+2. Click add button.
