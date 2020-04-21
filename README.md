@@ -4,7 +4,7 @@
 
 - Save ssh config.
 - Convenient to connect to ssh in terminal.
-- Convenient opearation ssh.
+- Convenient opearation sftp.
 
 ## Usage
 1. Open SSH view.
