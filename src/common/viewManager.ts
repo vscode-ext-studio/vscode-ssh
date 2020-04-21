@@ -60,7 +60,7 @@ export class ViewManager {
         const columnType = viewOption.splitResultView ? vscode.ViewColumn.Two : vscode.ViewColumn.One;
 
         return new Promise((resolve, reject) => {
-            fs.readFile(`${this.extensionPath}/src/webview/${viewOption.viewPath}.html`, 'utf8', async (err, data) => {
+            fs.readFile(`${this.extensionPath}/resources/webview/${viewOption.viewPath}.html`, 'utf8', async (err, data) => {
                 if (err) {
                     Console.log(err);
                     reject(err);
@@ -73,7 +73,7 @@ export class ViewManager {
                     { enableScripts: true, retainContextWhenHidden: true },
                 );
                 webviewPanel.webview.html = data.replace(/("|')\/?(css|js)\b/gi,
-                    "$1" + vscode.Uri.file(`${this.extensionPath}/src/webview`)
+                    "$1" + vscode.Uri.file(`${this.extensionPath}/resources/webview`)
                         .with({ scheme: 'vscode-resource' }).toString() + "/$2");
                 ViewManager.viewStatu[viewOption.viewType] = {
                     creating: true,
