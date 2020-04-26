@@ -9,9 +9,6 @@ import { ParentNode } from './node/parentNode';
 // TODO beautify connect and support private key
 export function activate(context: ExtensionContext) {
 
-    const newLocal = vscode.ThemeColor.toString();
-    console.log(newLocal)
-
     const serviceManager = new ServiceManager(context)
 
     context.subscriptions.push(
