@@ -90,12 +90,21 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
                     return;
                 }
 
-                const id = `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
-                const configs = this.getConnections();
-                configs[id] = sshConfig;
-                this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
-                viewPanel.dispose();
-                this.refresh();
+                ClientManager.getSSH(sshConfig).then(() => {
+                    const id = `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
+                    const configs = this.getConnections();
+                    configs[id] = sshConfig;
+                    this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
+                    viewPanel.dispose();
+                    this.refresh();
+                }).catch(err => {
+                    viewPanel.webview.postMessage({
+                        type: 'CONNECTION_ERROR',
+                        err
+                    })
+                })
+
+
             }
         })
 

@@ -19,7 +19,7 @@ export class ClientManager {
         }
 
         const client = new Client();
-        return new Promise((resolve) => {
+        return new Promise((resolve,reject) => {
             client.on('ready', () => {
                 client.sftp((err, sftp) => {
                     if (err) throw err;
@@ -28,7 +28,7 @@ export class ClientManager {
                 })
             }).on('error', (err) => {
                 vscode.window.showErrorMessage(err.message)
-                resolve(null)
+                reject(err)
             }).on('end', () => {
                 this.activeClient[key] = null
             }).connect(sshConfig);
