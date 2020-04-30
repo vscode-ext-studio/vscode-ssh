@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
 import { WebviewPanel } from "vscode";
-import { Console } from "./OutputChannel";
+import { Console } from "./outputChannel";
 
 export class ViewOption {
     public viewType: string;
