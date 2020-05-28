@@ -16,8 +16,6 @@ require('../css/style.css')
 /* global Blob, logBtn, credentialsBtn, reauthBtn, downloadLogBtn */
 var sessionLogEnable = false
 var loggedData = false
-var allowreplay = false
-var allowreauth = false
 var sessionLog, sessionFooter, logDate, currentDate, myFile, errorExists
 var socket, termid // eslint-disable-line
 const term = new Terminal()
@@ -53,24 +51,7 @@ term.onTitleChange(function (title) {
 function drawMenu(data) {
   dropupContent.innerHTML = data
   logBtn.addEventListener('click', toggleLog)
-  allowreauth && reauthBtn.addEventListener('click', reauthSession)
-  allowreplay && credentialsBtn.addEventListener('click', replayCredentials)
   loggedData && downloadLogBtn.addEventListener('click', downloadLog)
-}
-
-// reauthenticate
-function reauthSession() { // eslint-disable-line
-  console.log('re-authenticating')
-  window.location.href = '/ssh/reauth'
-  return false
-}
-
-// replay password to server, requires
-function replayCredentials() { // eslint-disable-line
-  socket.emit('control', 'replayCredentials')
-  console.log('replaying credentials')
-  term.focus()
-  return false
 }
 
 // Set variable to toggle log data from client/server to a varialble
@@ -135,7 +116,6 @@ function downloadLog() { // eslint-disable-line
 
 window.addEventListener('message', ({ data }) => {
   if (data.type === 'CONNECTION') {
-    console.log(data.socketPath)
     socket = io.connect(data.socketPath)
 
     term.onData(function (data) {
@@ -158,10 +138,6 @@ window.addEventListener('message', ({ data }) => {
       term.setOption('scrollback', data.scrollback)
       term.setOption('tabStopWidth', data.tabStopWidth)
       term.setOption('bellStyle', data.bellStyle)
-    })
-
-    socket.on('title', function (data) {
-      document.title = data
     })
 
     socket.on('menu', function (data) {
@@ -201,28 +177,6 @@ window.addEventListener('message', ({ data }) => {
       status.style.backgroundColor = data
     })
 
-    socket.on('allowreplay', function (data) {
-      if (data === true) {
-        console.log('allowreplay: ' + data)
-        allowreplay = true
-        drawMenu(dropupContent.innerHTML + '<a id="credentialsBtn"><i class="fas fa-key fa-fw"></i> Credentials</a>')
-      } else {
-        allowreplay = false
-        console.log('allowreplay: ' + data)
-      }
-    })
-
-    socket.on('allowreauth', function (data) {
-      if (data === true) {
-        console.log('allowreauth: ' + data)
-        allowreauth = true
-        drawMenu(dropupContent.innerHTML + '<a id="reauthBtn"><i class="fas fa-key fa-fw"></i> Switch User</a>')
-      } else {
-        allowreauth = false
-        console.log('allowreauth: ' + data)
-      }
-    })
-
     socket.on('disconnect', function (err) {
       if (!errorExists) {
         status.style.backgroundColor = 'red'
@@ -238,10 +192,6 @@ window.addEventListener('message', ({ data }) => {
         status.style.backgroundColor = 'red'
         status.innerHTML = 'ERROR: ' + err
       }
-    })
-
-    socket.on('reauth', function () {
-      (allowreauth) && reauthSession()
     })
 
     // safe shutdown

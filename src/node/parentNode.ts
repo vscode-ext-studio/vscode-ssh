@@ -1,17 +1,16 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
 import { FileEntry } from "ssh2-streams";
+import * as vscode from 'vscode';
 import { TreeItemCollapsibleState } from "vscode";
-import { NodeType, Command } from "../common/constant";
+import { Command, NodeType } from "../common/constant";
 import { ClientManager } from "../manager/clientManager";
-import AbstractNode from "./abstracNode";
-import { FileNode } from './fileNode';
-import { SSHConfig } from "./sshConfig";
 import { FileManager, FileModel } from '../manager/fileManager';
 import ServiceManager from '../manager/serviceManager';
 import { TerminalService } from '../service/terminal/terminalService';
-import { ClassicTerminal } from '../service/terminal/classicTerminalService';
 import { XtermTerminal } from '../service/terminal/xtermTerminalService';
+import AbstractNode from "./abstracNode";
+import { FileNode } from './fileNode';
+import { SSHConfig } from "./sshConfig";
 
 
 interface ParentModel {
@@ -118,7 +117,7 @@ export class ParentNode extends AbstractNode {
     }
 
     openTerminal(): any {
-        this.terminalService.openMethod(this.sshConfig, this.name)
+        this.terminalService.openMethod(this.sshConfig)
     }
 
     openInTeriminal(): any {
