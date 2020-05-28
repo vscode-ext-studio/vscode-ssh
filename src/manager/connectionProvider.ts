@@ -64,8 +64,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
     async add() {
 
         ViewManager.createWebviewPanel({
-            viewPath: "connect", viewType: "cwejian.redis.connection",
-            splitResultView: false, viewTitle: "Add SSH Config",
+            path: "connect", title: "Add SSH Config", splitView: false,
             receiveListener: (viewPanel, message: any) => {
 
                 const sshConfig: SSHConfig = message.connectionOption

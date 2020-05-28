@@ -11,6 +11,7 @@ import { FileManager, FileModel } from '../manager/fileManager';
 import ServiceManager from '../manager/serviceManager';
 import { TerminalService } from '../service/terminal/terminalService';
 import { ClassicTerminal } from '../service/terminal/classicTerminalService';
+import { XtermTerminal } from '../service/terminal/xtermTerminalService';
 
 
 interface ParentModel {
@@ -25,7 +26,7 @@ interface ParentModel {
  */
 export class ParentNode extends AbstractNode {
 
-    private terminalService: TerminalService = new ClassicTerminal();
+    private terminalService: TerminalService = new XtermTerminal();
 
     constructor(readonly sshConfig: SSHConfig, readonly name: string, readonly file?: FileEntry, readonly parentName?: string, iconPath?: string) {
         super(name, TreeItemCollapsibleState.Collapsed);

@@ -86,7 +86,8 @@ export class ViewManager {
                         },
                         { enableScripts: true, retainContextWhenHidden: true },
                     );
-                    webviewPanel.webview.html = this.buildInclude(this.buildPath(data, webviewPanel.webview), path.resolve(targetPath, ".."));
+                    const parentPath=path.resolve(targetPath, "..");
+                    webviewPanel.webview.html = this.buildInclude(this.buildPath(data, webviewPanel.webview,parentPath), parentPath);
                     this.viewStatu[viewOption.title] = {
                         creating: true,
                         instance: webviewPanel,
@@ -131,8 +132,8 @@ export class ViewManager {
         return data;
     }
 
-    private static buildPath(data: string, webview: vscode.Webview): string {
-        return data.replace(/("|')\/?(css|js)\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${this.webviewPath}/`)) + "/$2");
+    private static buildPath(data: string, webview: vscode.Webview,parentPath:string): string {
+        return data.replace(/("|')\/?(css|js)\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${parentPath}/`)) + "/$2");
     }
 
 }

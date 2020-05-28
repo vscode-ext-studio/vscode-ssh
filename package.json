@@ -5,7 +5,7 @@
 	"version": "1.0.3",
 	"publisher": "cweijan",
 	"engines": {
-		"vscode": "^1.30.0"
+		"vscode": "^1.38.0"
 	},
 	"categories": [
 		"Other"
@@ -191,8 +191,7 @@
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
-		"build": "webpack --progress --colors --config scripts/webpack.prod.js",
-		"builddev": "webpack --progress --colors --config scripts/webpack.dev.js"
+		"build": "webpack --progress --colors --config scripts/webpack.prod.js"
 	},
 	"devDependencies": {
 		"@types/node": "^13.11.0",
@@ -201,7 +200,7 @@
 		"@typescript-eslint/parser": "^2.26.0",
 		"eslint": "^6.8.0",
 		"typescript": "^3.8.3",
-		"vscode": "^1.1.36",
+		"@types/vscode": "1.38.0",
 		"terser-webpack-plugin": "^2.3.5",
 		"xterm": "^4.4.0",
 		"xterm-addon-fit": "^0.3.0",
@@ -226,6 +225,7 @@
 		"@types/socket.io": "^2.1.8",
 		"async-lock": "^1.2.4",
 		"debug": "^4.1.1",
+		"portfinder": "^1.0.26",
 		"socket.io": "^2.3.0",
 		"ssh2": "^0.8.9"
 	}

@@ -41,14 +41,102 @@ window.addEventListener('resize', resizeScreen, false)
 
 function resizeScreen() {
   fitAddon.fit()
-  socket.emit('resize', { cols: term.cols, rows: term.rows })
+  socket.emit('resize', { cols: term.cols, rows: term.rows, height: window.innerHeight, width: window.innerWidth })
 }
+
+term.onTitleChange(function (title) {
+  document.title = title
+})
+
+// draw/re-draw menu and reattach listeners
+// when dom is changed, listeners are abandonded
+function drawMenu(data) {
+  dropupContent.innerHTML = data
+  logBtn.addEventListener('click', toggleLog)
+  allowreauth && reauthBtn.addEventListener('click', reauthSession)
+  allowreplay && credentialsBtn.addEventListener('click', replayCredentials)
+  loggedData && downloadLogBtn.addEventListener('click', downloadLog)
+}
+
+// reauthenticate
+function reauthSession() { // eslint-disable-line
+  console.log('re-authenticating')
+  window.location.href = '/ssh/reauth'
+  return false
+}
+
+// replay password to server, requires
+function replayCredentials() { // eslint-disable-line
+  socket.emit('control', 'replayCredentials')
+  console.log('replaying credentials')
+  term.focus()
+  return false
+}
+
+// Set variable to toggle log data from client/server to a varialble
+// for later download
+function toggleLog() { // eslint-disable-line
+  if (sessionLogEnable === true) {
+    sessionLogEnable = false
+    loggedData = true
+    logBtn.innerHTML = '<i class="fas fa-clipboard fa-fw"></i> Start Log'
+    console.log('stopping log, ' + sessionLogEnable)
+    currentDate = new Date()
+    sessionLog = sessionLog + '\r\n\r\nLog End for ' + sessionFooter + ': ' +
+      currentDate.getFullYear() + '/' + (currentDate.getMonth() + 1) + '/' +
+      currentDate.getDate() + ' @ ' + currentDate.getHours() + ':' +
+      currentDate.getMinutes() + ':' + currentDate.getSeconds() + '\r\n'
+    logDate = currentDate
+    term.focus()
+    return false
+  } else {
+    sessionLogEnable = true
+    loggedData = true
+    logBtn.innerHTML = '<i class="fas fa-cog fa-spin fa-fw"></i> Stop Log'
+    downloadLogBtn.style.color = '#000'
+    downloadLogBtn.addEventListener('click', downloadLog)
+    console.log('starting log, ' + sessionLogEnable)
+    currentDate = new Date()
+    sessionLog = 'Log Start for ' + sessionFooter + ': ' +
+      currentDate.getFullYear() + '/' + (currentDate.getMonth() + 1) + '/' +
+      currentDate.getDate() + ' @ ' + currentDate.getHours() + ':' +
+      currentDate.getMinutes() + ':' + currentDate.getSeconds() + '\r\n\r\n'
+    logDate = currentDate
+    term.focus()
+    return false
+  }
+}
+
+// cross browser method to "download" an element to the local system
+// used for our client-side logging feature
+function downloadLog() { // eslint-disable-line
+  if (loggedData === true) {
+    myFile = 'WebSSH2-' + logDate.getFullYear() + (logDate.getMonth() + 1) +
+      logDate.getDate() + '_' + logDate.getHours() + logDate.getMinutes() +
+      logDate.getSeconds() + '.log'
+    // regex should eliminate escape sequences from being logged.
+    var blob = new Blob([sessionLog.replace(/[\u001b\u009b][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><;]/g, '')], { // eslint-disable-line no-control-regex
+      type: 'text/plain'
+    })
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveBlob(blob, myFile)
+    } else {
+      var elem = window.document.createElement('a')
+      elem.href = window.URL.createObjectURL(blob)
+      elem.download = myFile
+      document.body.appendChild(elem)
+      elem.click()
+      document.body.removeChild(elem)
+    }
+  }
+  term.focus()
+}
+
 
 window.addEventListener('message', ({ data }) => {
   if (data.type === 'CONNECTION') {
-    socket = io.connect({
-      path: data.socketPath
-    })
+    console.log(data.socketPath)
+    socket = io.connect(data.socketPath)
 
     term.onData(function (data) {
       socket.emit('data', data)
@@ -170,93 +258,3 @@ window.addEventListener('message', ({ data }) => {
   }
 })
 postMessage({ type: 'init' })
-
-
-
-term.onTitleChange(function (title) {
-  document.title = title
-})
-
-// draw/re-draw menu and reattach listeners
-// when dom is changed, listeners are abandonded
-function drawMenu(data) {
-  dropupContent.innerHTML = data
-  logBtn.addEventListener('click', toggleLog)
-  allowreauth && reauthBtn.addEventListener('click', reauthSession)
-  allowreplay && credentialsBtn.addEventListener('click', replayCredentials)
-  loggedData && downloadLogBtn.addEventListener('click', downloadLog)
-}
-
-// reauthenticate
-function reauthSession() { // eslint-disable-line
-  console.log('re-authenticating')
-  window.location.href = '/ssh/reauth'
-  return false
-}
-
-// replay password to server, requires
-function replayCredentials() { // eslint-disable-line
-  socket.emit('control', 'replayCredentials')
-  console.log('replaying credentials')
-  term.focus()
-  return false
-}
-
-// Set variable to toggle log data from client/server to a varialble
-// for later download
-function toggleLog() { // eslint-disable-line
-  if (sessionLogEnable === true) {
-    sessionLogEnable = false
-    loggedData = true
-    logBtn.innerHTML = '<i class="fas fa-clipboard fa-fw"></i> Start Log'
-    console.log('stopping log, ' + sessionLogEnable)
-    currentDate = new Date()
-    sessionLog = sessionLog + '\r\n\r\nLog End for ' + sessionFooter + ': ' +
-      currentDate.getFullYear() + '/' + (currentDate.getMonth() + 1) + '/' +
-      currentDate.getDate() + ' @ ' + currentDate.getHours() + ':' +
-      currentDate.getMinutes() + ':' + currentDate.getSeconds() + '\r\n'
-    logDate = currentDate
-    term.focus()
-    return false
-  } else {
-    sessionLogEnable = true
-    loggedData = true
-    logBtn.innerHTML = '<i class="fas fa-cog fa-spin fa-fw"></i> Stop Log'
-    downloadLogBtn.style.color = '#000'
-    downloadLogBtn.addEventListener('click', downloadLog)
-    console.log('starting log, ' + sessionLogEnable)
-    currentDate = new Date()
-    sessionLog = 'Log Start for ' + sessionFooter + ': ' +
-      currentDate.getFullYear() + '/' + (currentDate.getMonth() + 1) + '/' +
-      currentDate.getDate() + ' @ ' + currentDate.getHours() + ':' +
-      currentDate.getMinutes() + ':' + currentDate.getSeconds() + '\r\n\r\n'
-    logDate = currentDate
-    term.focus()
-    return false
-  }
-}
-
-// cross browser method to "download" an element to the local system
-// used for our client-side logging feature
-function downloadLog() { // eslint-disable-line
-  if (loggedData === true) {
-    myFile = 'WebSSH2-' + logDate.getFullYear() + (logDate.getMonth() + 1) +
-      logDate.getDate() + '_' + logDate.getHours() + logDate.getMinutes() +
-      logDate.getSeconds() + '.log'
-    // regex should eliminate escape sequences from being logged.
-    var blob = new Blob([sessionLog.replace(/[\u001b\u009b][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><;]/g, '')], { // eslint-disable-line no-control-regex
-      type: 'text/plain'
-    })
-    if (window.navigator.msSaveOrOpenBlob) {
-      window.navigator.msSaveBlob(blob, myFile)
-    } else {
-      var elem = window.document.createElement('a')
-      elem.href = window.URL.createObjectURL(blob)
-      elem.download = myFile
-      document.body.appendChild(elem)
-      elem.click()
-      document.body.removeChild(elem)
-    }
-  }
-  term.focus()
-}
