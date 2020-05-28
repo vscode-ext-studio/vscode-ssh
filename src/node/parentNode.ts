@@ -9,6 +9,8 @@ import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { FileManager, FileModel } from '../manager/fileManager';
 import ServiceManager from '../manager/serviceManager';
+import { TerminalService } from '../service/terminal/terminalService';
+import { ClassicTerminal } from '../service/terminal/classicTerminalService';
 
 
 interface ParentModel {
@@ -23,6 +25,8 @@ interface ParentModel {
  */
 export class ParentNode extends AbstractNode {
 
+    private terminalService: TerminalService = new ClassicTerminal();
+
     constructor(readonly sshConfig: SSHConfig, readonly name: string, readonly file?: FileEntry, readonly parentName?: string, iconPath?: string) {
         super(name, TreeItemCollapsibleState.Collapsed);
         this.id = file ? `${sshConfig.username}@${sshConfig.host}_${sshConfig.port}_${parentName}.${name}` : name;
@@ -36,7 +40,7 @@ export class ParentNode extends AbstractNode {
         }
         if (file && file.filename.toLocaleLowerCase() == "home") {
             this.iconPath = `${ServiceManager.context.extensionPath}/resources/image/folder-core.svg`;
-        }else if (iconPath) {
+        } else if (iconPath) {
             this.iconPath = iconPath;
         }
     }
@@ -113,19 +117,7 @@ export class ParentNode extends AbstractNode {
     }
 
     openTerminal(): any {
-        const sendConfirm = "SEND PASSWORD";
-        const sshterm = vscode.window.activeTerminal ? vscode.window.activeTerminal : vscode.window.createTerminal(this.name);
-        sshterm.sendText(`ssh ${this.sshConfig.username}@${this.sshConfig.host} -o StrictHostKeyChecking=no ${this.sshConfig.private ? ` -i ${this.sshConfig.private}` : ''} `);
-        sshterm.show();
-        const auth = this.sshConfig.password || this.sshConfig.passphrase;
-        if (auth) {
-            vscode.window.showQuickPick([sendConfirm], { ignoreFocusOut: true }).then(res => {
-                if (res == sendConfirm) {
-                    sshterm.sendText(this.sshConfig.password)
-                }
-            })
-        }
-
+        this.terminalService.openMethod(this.sshConfig, this.name)
     }
 
     openInTeriminal(): any {
