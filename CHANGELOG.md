@@ -1,5 +1,5 @@
 # Change Log
 
-1.0.0 (2020/4/20)
+1.1.5 (2020/5/30)
 
-- Initial release
+- Change Terminal to webssh.
