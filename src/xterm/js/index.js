@@ -15,7 +15,28 @@ require('../css/style.css')
 
 var errorExists = false;
 var socket;
-const term = new Terminal()
+const term = new Terminal({
+  theme: {
+    foreground: "#D0D4e6",
+    background: "#2f3032",
+    brightBlack: "#303845",
+    brightBlue: "#667fb1",
+    brightGreen: "#16C60C",
+    brightCyan: "#61D6D6",
+    brightRed: "#bf616e",
+    brightPurple: "#caa6ec",
+    brightYellow: "#efaa8e",
+    brightWhite: "#d0d4e6",
+    black: "#8897b0",
+    blue: "#77abe7",
+    green: "#8fcac0",
+    cyan: "#7bc6c0",
+    red: "#E39194",
+    purple: "#DB797c",
+    yellow: "#DDD7A3",
+    white: "#D0D4e6"
+  }
+})
 // DOM properties
 var openLogBtn = document.getElementById('openLogBtn')
 var status = document.getElementById('status')
