@@ -7,6 +7,7 @@ import { Console } from "../common/outputChannel";
 const lock = new AsyncLock()
 
 export class ViewOption {
+    public iconPath?: string;
     public path: string;
     public title: string;
     public splitView: boolean = false;
@@ -86,8 +87,11 @@ export class ViewManager {
                         },
                         { enableScripts: true, retainContextWhenHidden: true },
                     );
-                    const parentPath=path.resolve(targetPath, "..");
-                    webviewPanel.webview.html = this.buildInclude(this.buildPath(data, webviewPanel.webview,parentPath), parentPath);
+                    if (viewOption.iconPath) {
+                        webviewPanel.iconPath = vscode.Uri.file(`${this.webviewPath}/${viewOption.iconPath}`)
+                    }
+                    const parentPath = path.resolve(targetPath, "..");
+                    webviewPanel.webview.html = this.buildInclude(this.buildPath(data, webviewPanel.webview, parentPath), parentPath);
                     this.viewStatu[viewOption.title] = {
                         creating: true,
                         instance: webviewPanel,
@@ -132,7 +136,7 @@ export class ViewManager {
         return data;
     }
 
-    private static buildPath(data: string, webview: vscode.Webview,parentPath:string): string {
+    private static buildPath(data: string, webview: vscode.Webview, parentPath: string): string {
         return data.replace(/("|')\/?(css|js)\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${parentPath}/`)) + "/$2");
     }
 

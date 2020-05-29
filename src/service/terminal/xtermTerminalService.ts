@@ -18,7 +18,8 @@ export class XtermTerminal implements TerminalService {
         io.on('connection', (socket) => this.handlerSocket(socket, sshConfig, server))
         server.listen(port);
         ViewManager.createWebviewPanel({
-            splitView: false, path: "xterm/client", title: `ssh://${sshConfig.username}@${sshConfig.host}`, initListener: (viewPanel: WebviewPanel) => {
+            splitView: false, path: "xterm/client",iconPath:"xterm/favicon.ico",
+             title: `ssh://${sshConfig.username}@${sshConfig.host}`, initListener: (viewPanel: WebviewPanel) => {
                 viewPanel.webview.postMessage({ type: "CONNECTION", socketPath: "http://127.0.0.1:" + port })
             },
         })
@@ -52,12 +53,7 @@ export class XtermTerminal implements TerminalService {
                     end()
                     return
                 }
-                // TODO 美化xterm
-                // TODO 连接后无法及时输入命令
                 socket.on('data', (data: string) => {
-                    if (data.toLowerCase() == "clear" || data.toLowerCase() == "cls") {
-                        dataBuffer = ""
-                    }
                     stream.write(data)
                 })
                 socket.on('resize', (data) => {

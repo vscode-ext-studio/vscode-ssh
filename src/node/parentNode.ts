@@ -12,14 +12,6 @@ import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 
-
-interface ParentModel {
-    file: FileEntry;
-    parentName: string;
-    iconPath: string;
-    nodeType: NodeType;
-}
-
 /**
  * contains connection and folder
  */
