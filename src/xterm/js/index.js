@@ -13,17 +13,13 @@ dom.watch()
 require('xterm/css/xterm.css')
 require('../css/style.css')
 
-/* global Blob, logBtn, credentialsBtn, reauthBtn, downloadLogBtn */
-var sessionLogEnable = false
-var loggedData = false
-var sessionLog, sessionFooter, logDate, currentDate, myFile, errorExists
-var socket, termid // eslint-disable-line
+var errorExists = false;
+var socket;
 const term = new Terminal()
 // DOM properties
+var openLogBtn = document.getElementById('openLogBtn')
 var status = document.getElementById('status')
 var header = document.getElementById('header')
-var dropupContent = document.getElementById('dropupContent')
-var footer = document.getElementById('footer')
 var countdown = document.getElementById('countdown')
 var fitAddon = new FitAddon()
 var terminalContainer = document.getElementById('terminal-container')
@@ -32,88 +28,20 @@ term.open(terminalContainer)
 term.focus()
 fitAddon.fit()
 
-const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
-const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
+function resizeScreen() {
+  fitAddon.fit()
+  socket.emit('resize', { cols: term.cols, rows: term.rows })
+}
 
 window.addEventListener('resize', resizeScreen, false)
 
-function resizeScreen() {
-  fitAddon.fit()
-  socket.emit('resize', { cols: term.cols, rows: term.rows, height: window.innerHeight, width: window.innerWidth })
-}
-
-term.onTitleChange(function (title) {
-  document.title = title
-})
-
-// draw/re-draw menu and reattach listeners
-// when dom is changed, listeners are abandonded
-function drawMenu(data) {
-  dropupContent.innerHTML = data
-  logBtn.addEventListener('click', toggleLog)
-  loggedData && downloadLogBtn.addEventListener('click', downloadLog)
-}
-
-// Set variable to toggle log data from client/server to a varialble
-// for later download
-function toggleLog() { // eslint-disable-line
-  if (sessionLogEnable === true) {
-    sessionLogEnable = false
-    loggedData = true
-    logBtn.innerHTML = '<i class="fas fa-clipboard fa-fw"></i> Start Log'
-    console.log('stopping log, ' + sessionLogEnable)
-    currentDate = new Date()
-    sessionLog = sessionLog + '\r\n\r\nLog End for ' + sessionFooter + ': ' +
-      currentDate.getFullYear() + '/' + (currentDate.getMonth() + 1) + '/' +
-      currentDate.getDate() + ' @ ' + currentDate.getHours() + ':' +
-      currentDate.getMinutes() + ':' + currentDate.getSeconds() + '\r\n'
-    logDate = currentDate
-    term.focus()
-    return false
-  } else {
-    sessionLogEnable = true
-    loggedData = true
-    logBtn.innerHTML = '<i class="fas fa-cog fa-spin fa-fw"></i> Stop Log'
-    downloadLogBtn.style.color = '#000'
-    downloadLogBtn.addEventListener('click', downloadLog)
-    console.log('starting log, ' + sessionLogEnable)
-    currentDate = new Date()
-    sessionLog = 'Log Start for ' + sessionFooter + ': ' +
-      currentDate.getFullYear() + '/' + (currentDate.getMonth() + 1) + '/' +
-      currentDate.getDate() + ' @ ' + currentDate.getHours() + ':' +
-      currentDate.getMinutes() + ':' + currentDate.getSeconds() + '\r\n\r\n'
-    logDate = currentDate
-    term.focus()
-    return false
-  }
-}
-
-// cross browser method to "download" an element to the local system
-// used for our client-side logging feature
-function downloadLog() { // eslint-disable-line
-  if (loggedData === true) {
-    myFile = 'WebSSH2-' + logDate.getFullYear() + (logDate.getMonth() + 1) +
-      logDate.getDate() + '_' + logDate.getHours() + logDate.getMinutes() +
-      logDate.getSeconds() + '.log'
-    // regex should eliminate escape sequences from being logged.
-    var blob = new Blob([sessionLog.replace(/[\u001b\u009b][[\]()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><;]/g, '')], { // eslint-disable-line no-control-regex
-      type: 'text/plain'
-    })
-    if (window.navigator.msSaveOrOpenBlob) {
-      window.navigator.msSaveBlob(blob, myFile)
-    } else {
-      var elem = window.document.createElement('a')
-      elem.href = window.URL.createObjectURL(blob)
-      elem.download = myFile
-      document.body.appendChild(elem)
-      elem.click()
-      document.body.removeChild(elem)
-    }
-  }
+openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => {
+  socket.emit('openLog')
   term.focus()
-}
+}))
 
-
+const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
+const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 window.addEventListener('message', ({ data }) => {
   if (data.type === 'CONNECTION') {
     socket = io.connect(data.socketPath)
@@ -124,9 +52,6 @@ window.addEventListener('message', ({ data }) => {
 
     socket.on('data', function (data) {
       term.write(data)
-      if (sessionLogEnable) {
-        sessionLog = sessionLog + data
-      }
     })
 
     socket.on('connect', function () {
@@ -138,10 +63,6 @@ window.addEventListener('message', ({ data }) => {
       term.setOption('scrollback', data.scrollback)
       term.setOption('tabStopWidth', data.tabStopWidth)
       term.setOption('bellStyle', data.bellStyle)
-    })
-
-    socket.on('menu', function (data) {
-      drawMenu(data)
     })
 
     socket.on('status', function (data) {
@@ -160,17 +81,12 @@ window.addEventListener('message', ({ data }) => {
 
     socket.on('header', function (data) {
       if (data) {
-        header.innerHTML = data
+        document.getElementById('headerHost').innerHTML = data
         header.style.display = 'block'
         // header is 19px and footer is 19px, recaculate new terminal-container and resize
         terminalContainer.style.height = 'calc(100% - 38px)'
         resizeScreen()
       }
-    })
-
-    socket.on('footer', function (data) {
-      sessionFooter = data
-      footer.innerHTML = data
     })
 
     socket.on('statusBackground', function (data) {
