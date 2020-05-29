@@ -10,23 +10,39 @@ import { FileManager, FileModel } from "../../manager/fileManager";
 
 export class XtermTerminal implements TerminalService {
 
-    public async openMethod(sshConfig: SSHConfig) {
+    private getSshUrl(sshConfig: SSHConfig): string {
+        return 'ssh://' + sshConfig.username + '@' + sshConfig.host + ':' + sshConfig.port;
+    }
+
+    private static socketMap = new Map<string, Socket>();
+
+    public async openPath(sshConfig: SSHConfig, fullPath: string) {
+        const socket = XtermTerminal.socketMap[this.getSshUrl(sshConfig)]
+        if (socket) {
+            socket.emit('path', fullPath)
+        } else {
+            this.openMethod(sshConfig, () => { this.openPath(sshConfig, fullPath) })
+        }
+    }
+
+    public async openMethod(sshConfig: SSHConfig, callback?: () => void) {
 
         const port = await portfinder.getPortPromise();
         const server = require('http').createServer();
         const io = listen(server);
-        io.on('connection', (socket) => this.handlerSocket(socket, sshConfig, server))
+        io.on('connection', (socket) => this.handlerSocket(socket, sshConfig, server, callback))
         server.listen(port);
         ViewManager.createWebviewPanel({
-            splitView: false, path: "xterm/client",iconPath:"xterm/favicon.ico",
-             title: `ssh://${sshConfig.username}@${sshConfig.host}`, initListener: (viewPanel: WebviewPanel) => {
+            splitView: false, path: "xterm/client", iconPath: "xterm/favicon.ico",
+            title: `ssh://${sshConfig.username}@${sshConfig.host}`, initListener: (viewPanel: WebviewPanel) => {
                 viewPanel.webview.postMessage({ type: "CONNECTION", socketPath: "http://127.0.0.1:" + port })
             },
         })
 
     }
 
-    private handlerSocket(socket: Socket, sshConfig: SSHConfig, server: any) {
+    private handlerSocket(socket: Socket, sshConfig: SSHConfig, server: any, callback?: () => void) {
+        XtermTerminal.socketMap[this.getSshUrl(sshConfig)] = socket
         var termCols: number, termRows: number;
         socket.on('geometry', (cols, rows) => {
             termCols = cols
@@ -34,11 +50,14 @@ export class XtermTerminal implements TerminalService {
         })
         let dataBuffer = "";
         const client = new Client()
-        const end = () => { socket.disconnect(true); client.end(); server.close(); dataBuffer = null; }
+        const end = () => {
+            socket.disconnect(true); client.end(); server.close(); dataBuffer = null;
+            XtermTerminal.socketMap[this.getSshUrl(sshConfig)] = null;
+        }
         const SSHerror = (message: string, err: any) => { socket.emit('ssherror', (err) ? `${message}: ${err.message}` : message); end(); }
-        client.on('ready', function connOnReady() {
+        client.on('ready', () => {
             socket.emit('setTerminalOpts', { cursorBlink: true, scrollback: 10000, tabStopWidth: 8, bellStyle: "sound" })
-            const sshUrl = 'ssh://' + sshConfig.username + '@' + sshConfig.host + ':' + sshConfig.port;
+            const sshUrl = this.getSshUrl(sshConfig);
             socket.emit('header', sshUrl)
             socket.emit('headerBackground', 'green')
             socket.emit('status', 'SSH CONNECTION ESTABLISHED')
@@ -49,7 +68,7 @@ export class XtermTerminal implements TerminalService {
                 rows: termRows
             }, (err, stream) => {
                 if (err) {
-                    this.SSHerror('EXEC ERROR' + err)
+                    SSHerror('EXEC ERROR' + err, null)
                     end()
                     return
                 }
@@ -80,11 +99,16 @@ export class XtermTerminal implements TerminalService {
                 stream.on('data', (data) => {
                     socket.emit('data', data.toString('utf-8'));
                     dataBuffer += data
+                    if (!XtermTerminal.socketMap[sshUrl]) {
+                        XtermTerminal.socketMap[sshUrl] = socket;
+                    }
                 })
                 stream.on('close', (code, signal) => {
                     socket.emit('ssherror', 'client closed socket io.')
                     end()
                 })
+                if (callback && (typeof callback) == "function")
+                    callback()
             })
         })
         client.on('banner', (data: string) => socket.emit('data', data.replace(/\r?\n/g, '\r\n')))
@@ -96,5 +120,6 @@ export class XtermTerminal implements TerminalService {
         })
         client.connect(sshConfig)
     }
+
 
 }

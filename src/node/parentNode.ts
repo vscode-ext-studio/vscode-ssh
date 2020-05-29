@@ -113,11 +113,7 @@ export class ParentNode extends AbstractNode {
     }
 
     openInTeriminal(): any {
-        if (!vscode.window.activeTerminal) {
-            vscode.window.showErrorMessage("You must open terminal.")
-        } else {
-            vscode.window.activeTerminal.sendText(`cd ${this.fullPath}`)
-        }
+        this.terminalService.openPath(this.sshConfig,this.fullPath)
     }
 
     async getChildren(): Promise<AbstractNode[]> {

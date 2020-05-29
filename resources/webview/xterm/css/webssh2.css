@@ -173,7 +173,7 @@ body, html  {
   font-family: helvetica, sans-serif, arial;
   font-size: 1em;
   color: #111;
-  background-color: rgb(0, 0, 0);
+  background-color: #2f3032;
   color: rgb(240, 240, 240);
   height: 100%;
   margin: 0;
@@ -223,17 +223,6 @@ body, html  {
     z-index: 99;
     height: 19px;
 }
-#footer {
-    display: inline-block;
-    color: rgb(240, 240, 240);
-    background-color: rgb(50, 50, 50);
-    padding-left: 5px;
-    padding-right: 5px;
-    border-color: white;
-    border-style: none none none solid;
-    border-width: 1px;
-    text-align: left;
-}
 #status {
     display: inline-block;
     color: rgb(240, 240, 240);
@@ -245,22 +234,6 @@ body, html  {
     border-width: 1px;
     text-align: left;
     z-index: 100;
-}
-#countdown {
-    display: none;
-    color: rgb(240, 240, 240);
-    background-color: rgb(50, 50, 50);
-    padding-left: 10px;
-    padding-right: 10px;
-    border-color: white;
-    border-style: none solid none solid;
-    border-width: 1px;
-    text-align: left;
-    z-index: 100;
-}
-#countdown.active {
-    display: inline-block;
-    animation: countdown infinite alternate 200ms;
 }
 @keyframes countdown {
     from {
@@ -283,36 +256,6 @@ body, html  {
 #logBtn, #credentialsBtn, #reauthBtn {
     color: #000;
 }
-
-.dropup {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-}
-.dropup-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  font-size: 16px;
-  min-width: 160px;
-  bottom: 18px;
-  z-index: 101;
-}
-.dropup-content a {
-    color: #777;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-.dropup-content a:hover {
-    background-color: #ccc
-}
-.dropup:hover .dropup-content {
-    display: block;
-}
-.dropup:click .dropup-content {
-    display: block;
-}
-.dropup:hover .dropbtn {
-    background-color: #3e8e41;
+#openLogBtn{
+    color: #000000;
 }

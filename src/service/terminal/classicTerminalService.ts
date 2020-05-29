@@ -1,7 +1,15 @@
 import * as vscode from 'vscode';
 import { TerminalService } from "./terminalService";
+import { SSHConfig } from '../../node/sshConfig';
 
 export class ClassicTerminal implements TerminalService {
+    openPath(sshConfig: SSHConfig,fullPath: string): void {
+        if (!vscode.window.activeTerminal) {
+            vscode.window.showErrorMessage("You must open terminal.")
+        } else {
+            vscode.window.activeTerminal.sendText(`cd ${fullPath}`)
+        }
+    }
 
     openMethod(sshConfig: import("../../node/sshConfig").SSHConfig): void {
 

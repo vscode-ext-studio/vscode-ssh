@@ -38,8 +38,8 @@ const term = new Terminal({
   fontSize: 18,
   fontFamily: "'Consolas ligaturized',Consolas, 'Microsoft YaHei','Courier New', monospace",
   disableStdin: false,
-  lineHeight:1.1,
-  rightClickSelectsWord:true
+  lineHeight: 1.1,
+  rightClickSelectsWord: true
 })
 // DOM properties
 var openLogBtn = document.getElementById('openLogBtn')
@@ -52,6 +52,9 @@ term.loadAddon(fitAddon)
 term.open(terminalContainer)
 fitAddon.fit()
 term.focus()
+term.onData(function (data) {
+  socket.emit('data', data)
+})
 
 function resizeScreen() {
   fitAddon.fit()
@@ -71,15 +74,19 @@ const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : n
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 window.addEventListener('message', ({ data }) => {
   if (data.type === 'CONNECTION') {
+    var oldSocket;
+    if (socket) {
+      oldSocket = socket;
+    }
     socket = io.connect(data.socketPath)
-
-    term.onData(function (data) {
-      socket.emit('data', data)
-    })
 
     socket.on('data', function (data) {
       term.write(data)
       term.focus()
+    })
+
+    socket.on('path', path => {
+      socket.emit('data', `cd ${path}\n`)
     })
 
     socket.on('connect', function () {
@@ -141,17 +148,10 @@ window.addEventListener('message', ({ data }) => {
       }
     })
 
-    // safe shutdown
-    var hasCountdownStarted = false
+    if (oldSocket) {
+      oldSocket.close()
+    }
 
-    socket.on('shutdownCountdownUpdate', function (remainingSeconds) {
-      if (!hasCountdownStarted) {
-        countdown.classList.add('active')
-        hasCountdownStarted = true
-      }
-
-      countdown.innerText = 'Shutting down in ' + remainingSeconds + 's'
-    })
   }
 })
 postMessage({ type: 'init' })
