@@ -1,11 +1,10 @@
 const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   context: path.resolve(__dirname, '../'),
   entry: {
     webssh2: './src/xterm/js/index.js'
@@ -40,9 +39,5 @@ module.exports = {
     new CopyWebpackPlugin(['./src/xterm/client.html', './src/xterm/favicon.ico']),
     new ExtractTextPlugin('css/[name].css')
   ],
-  optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin({ test: /\.js(\?.*)?$/i, terserOptions: { parallel: 4, ie8: false, safari10: false } })],
-  },
-  watch: false
+  watch: true
 }

@@ -188,9 +188,10 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
+		"compile": "tsc -p ./ && npm run build",
 		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
+		"watch": "tsc -watch -p ./ && npm run dev",
+		"dev": "webpack --progress --config scripts/webpack.dev.js",
 		"build": "webpack --progress --config scripts/webpack.prod.js"
 	},
 	"devDependencies": {
