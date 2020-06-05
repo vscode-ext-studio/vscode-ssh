@@ -23,7 +23,7 @@ export class ClientManager {
         }
 
         const client = new Client();
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             client.on('ready', () => {
                 client.sftp((err, sftp) => {
                     if (err) throw err;
@@ -35,7 +35,7 @@ export class ClientManager {
                 reject(err)
             }).on('end', () => {
                 this.activeClient[key] = null
-            }).connect(sshConfig);
+            }).connect({ ...sshConfig, readyTimeout: 1000 * 10 });
         })
 
     }
