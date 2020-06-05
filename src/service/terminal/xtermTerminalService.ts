@@ -82,6 +82,10 @@ export class XtermTerminal implements TerminalService {
                     socket.emit('ssherror', 'socket io connection was closed.')
                     end()
                 })
+                socket.on('paste', async () => {
+                    const clipboardData=await vscode.env.clipboard.readText()
+                    stream.write(clipboardData)
+                })
                 socket.on('openLog', async () => {
                     const filePath = sshConfig.username + '@' + sshConfig.host
                     await FileManager.record(filePath, dataBuffer, FileModel.WRITE)

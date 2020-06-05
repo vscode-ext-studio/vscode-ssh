@@ -62,6 +62,11 @@ function resizeScreen() {
 }
 
 window.addEventListener('resize', resizeScreen, false)
+window.addEventListener("keyup", event => {
+  if (event.key == "v" && event.ctrlKey) {
+    socket.emit('paste')
+  }
+});
 
 openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => {
   socket.emit('openLog')
