@@ -67,6 +67,9 @@ window.addEventListener("keyup", event => {
     socket.emit('paste')
   }
 });
+window.addEventListener("contextmenu", () => {
+  document.execCommand('copy');
+})
 
 openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => {
   socket.emit('openLog')
