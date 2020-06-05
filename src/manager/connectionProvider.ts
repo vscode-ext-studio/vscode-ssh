@@ -99,7 +99,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
                 }).catch(err => {
                     viewPanel.webview.postMessage({
                         type: 'CONNECTION_ERROR',
-                        err
+                        err:err.message
                     })
                 })
 

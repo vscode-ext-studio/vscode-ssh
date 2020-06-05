@@ -1,5 +1,8 @@
 # Change Log
 
-1.1.5 (2020/5/30)
+1.2.0 (2020/6/5)
+- Fix private key connect fail.
+
+1.0.0 (2020/4/20)
 
 - Change Terminal to webssh.
