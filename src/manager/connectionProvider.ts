@@ -8,6 +8,7 @@ import AbstractNode from '../node/abstracNode';
 import { ClientManager } from './clientManager';
 import { ViewManager } from '../common/viewManager';
 import { existsSync } from 'fs';
+import { Util } from '../common/util';
 
 
 export default class ConnectionProvider implements TreeDataProvider<AbstractNode> {
@@ -99,7 +100,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
                 }).catch(err => {
                     viewPanel.webview.postMessage({
                         type: 'CONNECTION_ERROR',
-                        err:err.message
+                        err: err.message
                     })
                 })
 
@@ -110,10 +111,12 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
     }
 
     delete(element: ParentNode) {
-        const configs = this.getConnections();
-        delete configs[element.id];
-        this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
-        this.refresh();
+        Util.confirm(`Are you want remove connection ${element.sshConfig.username}@${element.sshConfig.host}?`, () => {
+            const configs = this.getConnections();
+            delete configs[element.id];
+            this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
+            this.refresh();
+        })
     }
 
     private getConnections(): { [key: string]: SSHConfig } {
