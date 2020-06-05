@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Client, SFTPWrapper } from "ssh2";
 import { SSHConfig } from "../node/sshConfig";
+import { existsSync, readFileSync } from 'fs';
 
 class SSH {
     client: Client;
@@ -16,6 +17,9 @@ export class ClientManager {
         const key = `${sshConfig.host}_${sshConfig.port}_${sshConfig.username}`;
         if (this.activeClient[key]) {
             return Promise.resolve(this.activeClient[key]);
+        }
+        if (sshConfig.private && !sshConfig.privateKey && existsSync(sshConfig.private)) {
+            sshConfig.privateKey = readFileSync(sshConfig.private)
         }
 
         const client = new Client();
