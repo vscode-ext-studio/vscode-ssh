@@ -13,6 +13,7 @@ import { XtermTerminal } from '../service/terminal/xtermTerminalService';
 import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
+import { ForwardService } from '../service/forward/forwardService';
 
 /**
  * contains connection and folder
@@ -52,6 +53,18 @@ export class ParentNode extends AbstractNode {
                 viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
             }, receiveListener: async (viewPanel: vscode.WebviewPanel, message: any) => {
                 switch (message.type) {
+                    case "create":
+                    case "update":
+                        if(message.content.id){
+                            this.forwardService.remove(message.content.id)
+                        }
+                        try {
+                            await this.forwardService.forward(this.sshConfig, message.content)
+                            viewPanel.webview.postMessage({ type: "success" })
+                        } catch (err) {
+                            viewPanel.webview.postMessage({ type: "error", content: err.message })
+                        }
+                        break;
                     case "start":
                         this.forwardService.start(this.sshConfig, message.content)
                         viewPanel.webview.postMessage({ type: "success" })
@@ -64,15 +77,7 @@ export class ParentNode extends AbstractNode {
                         this.forwardService.remove(message.content)
                         viewPanel.webview.postMessage({ type: "success" })
                         break;
-                    case "create":
-                        try {
-                            await this.forwardService.forward(this.sshConfig, message.content)
-                            viewPanel.webview.postMessage({ type: "success" })
-                        } catch (err) {
-                            viewPanel.webview.postMessage({ type: "error", content: err.message })
-                        }
-                        break;
-                    case "reload":
+                    case "load":
                         viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
                         break;
                 }

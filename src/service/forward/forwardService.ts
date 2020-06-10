@@ -1,6 +1,7 @@
 import { SSHConfig } from "../../node/sshConfig";
 import tunnel = require('tunnel-ssh')
 import { Console } from "../../common/outputChannel";
+import { Util } from "../../common/util";
 
 export class ForwardInfo {
     id: any;
@@ -16,6 +17,7 @@ export class ForwardInfo {
 export class ForwardService {
 
     private tunelMark: { [key: string]: { tunnel: any } } = {};
+    private store_key = "forward_store"
 
     public closeTunnel(connectId: string) {
         if (this.tunelMark[connectId]) {
@@ -27,10 +29,6 @@ export class ForwardService {
     public forward(ssh: SSHConfig, forwardInfo: ForwardInfo): Promise<void> {
 
         return new Promise((resolve, reject) => {
-
-            if (forwardInfo.id != null) {
-                this.remove(forwardInfo.id)
-            }
 
             const config = {
                 ...ssh,
@@ -53,7 +51,9 @@ export class ForwardService {
                 }
                 resolve();
                 forwardInfo.id = id
-                // add to config
+                const forwardInfos = this.list()
+                forwardInfos.push(forwardInfo)
+                Util.store(this.store_key, forwardInfos)
             });
             localTunnel.on('error', (err) => {
                 Console.log('Ssh tunel occur error : ' + err);
@@ -69,41 +69,36 @@ export class ForwardService {
 
     public stop(id: any): void {
         this.closeTunnel(id)
-        // remove from config
     }
 
-
-
     public remove(id: any) {
-        for (const forwardInfo of this.list()) {
+        const forwardInfos = this.list()
+        for (let i = 0; i < forwardInfos.length; i++) {
+            const forwardInfo = forwardInfos[i]
             if (forwardInfo.id == id) {
                 this.stop(id)
+                forwardInfos.splice(i, 1)
             }
         }
     }
 
     public async start(sshConfig: SSHConfig, id: any) {
-
         for (const forwardInfo of this.list()) {
             if (forwardInfo.id == id) {
                 await this.forward(sshConfig, forwardInfo)
                 return;
             }
         }
-
     }
 
     public list(): ForwardInfo[] {
-        // get from config
-        return [{
-            id: 1,
-            name: "elastic-search",
-            localHost: "127.0.0.1",
-            localPort: 22,
-            remoteHost: "192.168.7.52",
-            remotePort: 9200,
-            state: true
-        }]
+        const ForwardInfos: ForwardInfo[] = Util.getStore(this.store_key)
+        for (const forwardInfos of ForwardInfos) {
+            if (this.tunelMark[forwardInfos.id]) {
+                forwardInfos.state = true;
+            }
+        }
+        return ForwardInfos;
     }
 
 }

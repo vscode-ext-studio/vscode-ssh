@@ -5,12 +5,12 @@ import ServiceManager from './manager/serviceManager';
 import { FileNode } from './node/fileNode';
 import { ParentNode } from './node/parentNode';
 import { Console } from './common/outputChannel';
+import { Util } from './common/util';
 
-// TODO watch file and update
-// TODO beautify connect and support private key
 export function activate(context: ExtensionContext) {
 
     const serviceManager = new ServiceManager(context)
+    Util.initStroe(context)
 
     context.subscriptions.push(
         ...serviceManager.init(),

@@ -69,7 +69,7 @@ export default {
           break;
         case "success":
           this.error = false;
-          postMessage({ type: "reload" });
+          postMessage({ type: "load" });
           break;
         case "error":
           this.error = true;
@@ -92,15 +92,8 @@ export default {
     remove(id){
       postMessage({ type: "remove", content: id });
     },
+    openEdit(row) {
 
-    openEdit(row) {},
-    deleteConfirm(id) {},
-    tryConnect() {
-      postMessage({
-        type: "CONNECT_TO_SQL_SERVER",
-        databaseType: this.databaseType,
-        connectionOption: this.connectionOption
-      });
     }
   }
 };
