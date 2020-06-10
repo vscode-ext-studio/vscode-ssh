@@ -3,15 +3,18 @@ import { FileEntry } from "ssh2-streams";
 import * as vscode from 'vscode';
 import { TreeItemCollapsibleState } from "vscode";
 import { Command, NodeType } from "../common/constant";
+import { Util } from '../common/util';
+import { ViewManager } from '../common/viewManager';
 import { ClientManager } from "../manager/clientManager";
 import { FileManager, FileModel } from '../manager/fileManager';
 import ServiceManager from '../manager/serviceManager';
+import { SSHForwardService } from '../service/forward/sshForwardService';
 import { TerminalService } from '../service/terminal/terminalService';
 import { XtermTerminal } from '../service/terminal/xtermTerminalService';
 import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
-import { Util } from '../common/util';
+import { ForwardInfo } from '../service/forward/forwardService';
 
 /**
  * contains connection and folder
@@ -42,7 +45,29 @@ export class ParentNode extends AbstractNode {
         Util.copyToBoard(this.sshConfig.host)
     }
 
-    newFile(): any {
+    private forwardService = new SSHForwardService()
+    public fowardPort() {
+        ViewManager.createWebviewPanel({
+            splitView: false, path: "forward", title: `forward://${this.sshConfig.username}@${this.sshConfig.host}`,
+            initListener: (viewPanel: vscode.WebviewPanel) => {
+                viewPanel.webview.postMessage({ type: "title", content: this.sshConfig.host })
+                viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
+            }, receiveListener: (viewPanel: vscode.WebviewPanel, message: any) => {
+                switch (message.type) {
+                    case "create":
+                        try {
+                            this.forwardService.forward(this.sshConfig, message.content)
+                            viewPanel.webview.postMessage({ type: "createSuccess", content: this.forwardService.list() })
+                        } catch (err) {
+                            viewPanel.webview.postMessage({ type: "error", content: err.message })
+                        }
+                        break;
+                }
+            },
+        })
+    }
+
+    public newFile(): any {
         vscode.window.showInputBox().then(async input => {
             if (input) {
                 const { sftp } = await ClientManager.getSSH(this.sshConfig)
@@ -61,7 +86,7 @@ export class ParentNode extends AbstractNode {
         })
     }
 
-    newFolder(): any {
+    public newFolder(): any {
         vscode.window.showInputBox().then(async input => {
             if (input) {
                 const { sftp } = await ClientManager.getSSH(this.sshConfig)
@@ -118,7 +143,7 @@ export class ParentNode extends AbstractNode {
     }
 
     openInTeriminal(): any {
-        this.terminalService.openPath(this.sshConfig,this.fullPath)
+        this.terminalService.openPath(this.sshConfig, this.fullPath)
     }
 
     async getChildren(): Promise<AbstractNode[]> {

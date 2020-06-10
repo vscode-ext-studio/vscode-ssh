@@ -7,7 +7,7 @@ import { ClientManager } from '../manager/clientManager';
 import { FileManager, FileModel } from '../manager/fileManager';
 import AbstractNode from "./abstracNode";
 import { SSHConfig } from "./sshConfig";
-import ConnectionProvider from '../manager/connectionProvider';
+import ConnectionProvider from './connectionProvider';
 import ServiceManager from '../manager/serviceManager';
 
 const prettyBytes = require('pretty-bytes');

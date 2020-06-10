@@ -102,6 +102,10 @@
 				"title": "Copy IP"
 			},
 			{
+				"command": "ssh.forward.port",
+				"title": "Forward Port"
+			},
+			{
 				"command": "ssh.folder.open",
 				"title": "Open In Terminal"
 			},
@@ -144,6 +148,11 @@
 				},
 				{
 					"command": "ssh.IP.copy",
+					"when": "view == github.cweijan.ssh && viewItem == connection",
+					"group": "connection@-2"
+				},
+				{
+					"command": "ssh.forward.port",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
 					"group": "connection@-1"
 				},
@@ -233,6 +242,7 @@
 		"pretty-bytes": "^5.3.0",
 		"socket.io": "^2.3.0",
 		"ssh2": "^0.8.9",
+		"tunnel-ssh": "^4.1.4",
 		"vue": "^2.6.11"
 	}
 }

@@ -10,6 +10,7 @@ module.exports = {
   entry: {
     webssh2: './src/pages/xterm/js/index.js',
     connect: './src/pages/vue/connect/main.js',
+    forward: './src/pages/vue/forward/main.js',
   },
   output: {
     filename: 'webview/js/[name].bundle.js',
@@ -33,13 +34,15 @@ module.exports = {
     new VueLoaderPlugin(),
     new CopyWebpackPlugin([{ from: './src/pages/xterm/favicon.ico', to: './webview/xterm' }]),
     new HtmlWebpackPlugin({ inject: true, template: './src/pages/xterm/client.html', chunks: ['webssh2'], filename: 'webview/client.html' }),
-    new HtmlWebpackPlugin({ inject: true, template: './src/pages/vue/common.html', chunks: ['connect'], filename: 'webview/connect.html' })
+    new HtmlWebpackPlugin({ inject: true, template: './src/pages/vue/common.html', chunks: ['connect'], filename: 'webview/connect.html' }),
+    new HtmlWebpackPlugin({ inject: true, template: './src/pages/vue/common.html', chunks: ['forward'], filename: 'webview/forward.html' })
   ],
   optimization: {
     minimize: isProd,
     splitChunks: {
       cacheGroups: {
-        antv: { name: "vue", test: /[\\/](vue|element-ui)[\\/]/, chunks: "all", priority: 10 },
+        vue: { name: "vue", test: /[\\/](vue)[\\/]/, chunks: "all", priority: 10 },
+        elementUi: { name: "element-ui", test: /[\\/](element-ui)[\\/]/, chunks: "all", priority: 10 },
       }
     }
   },

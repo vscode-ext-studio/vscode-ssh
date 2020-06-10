@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Disposable, ExtensionContext } from "vscode";
 import { ViewManager } from "../common/viewManager";
-import ConnectionProvider from "./connectionProvider";
+import ConnectionProvider from "../node/connectionProvider";
 import { FileManager } from './fileManager';
 
 export default class ServiceManager {

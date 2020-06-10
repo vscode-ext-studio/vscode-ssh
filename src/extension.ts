@@ -21,6 +21,7 @@ export function activate(context: ExtensionContext) {
             'ssh.folder.new': (parentNode: ParentNode) => parentNode.newFolder(),
             'ssh.file.new': (parentNode: ParentNode) => parentNode.newFile(),
             'ssh.IP.copy': (parentNode: ParentNode) => parentNode.copyIP(),
+            'ssh.forward.port': (parentNode: ParentNode) => parentNode.fowardPort(),
             'ssh.file.upload': (parentNode: ParentNode) => parentNode.upload(),
             'ssh.folder.open': (parentNode: ParentNode) => parentNode.openInTeriminal(),
             'ssh.file.delete': (fileNode: FileNode | ParentNode) => fileNode.delete(),

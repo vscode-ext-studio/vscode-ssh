@@ -55,15 +55,17 @@ export class ViewManager {
 
             const currentStatus = this.viewStatu[viewOption.title]
             if (viewOption.singlePage && currentStatus) {
-                if (currentStatus.creating) {
-                    currentStatus.initListener = viewOption.initListener
-                } else if (viewOption.killHidden && currentStatus.instance.visible == false) {
+                if (viewOption.killHidden && currentStatus.instance.visible == false) {
                     currentStatus.instance.dispose()
-                } else if (viewOption.initListener) {
-                    viewOption.initListener(currentStatus.instance)
+                } else {
+                    if (currentStatus.creating) {
+                        currentStatus.initListener = viewOption.initListener
+                    } else if (viewOption.initListener) {
+                        viewOption.initListener(currentStatus.instance)
+                    }
+                    if (viewOption.receiveListener) { currentStatus.receiveListener = viewOption.receiveListener }
+                    return Promise.resolve(currentStatus.instance);
                 }
-                if (viewOption.receiveListener) { currentStatus.receiveListener = viewOption.receiveListener }
-                return Promise.resolve(currentStatus.instance);
             }
             this.viewStatu[viewOption.title] = { creating: true, instance: null, initListener: viewOption.initListener, receiveListener: viewOption.receiveListener }
             const targetPath = `${this.webviewPath}/${viewOption.path}.html`;
