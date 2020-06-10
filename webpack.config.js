@@ -1,49 +1,47 @@
 const isProd = process.argv.indexOf('-p') >= 0;
 
 const path = require('path')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = {
   mode: 'development',
   entry: {
-    webssh2: './src/xterm/js/index.js'
+    webssh2: './src/pages/xterm/js/index.js',
+    connect: './src/pages/vue/connect/main.js',
   },
   output: {
-    filename: 'js/[name].bundle.js',
-    path: path.resolve(__dirname, './resources/webview/xterm')
+    filename: 'webview/js/[name].bundle.js',
+    path: path.resolve(__dirname, 'out')
   },
   module: {
     rules: [
-      {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader'
-            }
-          ]
-        })
-      }
+      { test: /\.css$/, use: ["vue-style-loader", "css-loader"] },
+      { test: /\.vue$/, loader: 'vue-loader', options: { loaders: { css: ["vue-style-loader", "css-loader"] } } },
+      { test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/, loader: 'url-loader', options: { limit: 80000 } }
     ]
   },
   resolve: {
-    extensions: ['.js', '.css'],
+    extensions: ['.vue', '.js', '.css'],
     alias: {
+      'vue$': 'vue/dist/vue.esm.js',
       '@': path.resolve(__dirname, '../src')
     }
   },
   plugins: [
-    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
-    new CopyWebpackPlugin(['./src/xterm/client.html', './src/xterm/favicon.ico']),
-    new ExtractTextPlugin('css/[name].css')
+    new VueLoaderPlugin(),
+    new CopyWebpackPlugin([{ from: './src/pages/xterm/favicon.ico', to: './webview/xterm' }]),
+    new HtmlWebpackPlugin({ inject: true, template: './src/pages/xterm/client.html', chunks: ['webssh2'], filename: 'webview/client.html' }),
+    new HtmlWebpackPlugin({ inject: true, template: './src/pages/vue/common.html', chunks: ['connect'], filename: 'webview/connect.html' })
   ],
   optimization: {
     minimize: isProd,
-    minimizer: [new TerserPlugin({ test: /\.js(\?.*)?$/i, terserOptions: { parallel: 4, ie8: false, safari10: false } })],
+    splitChunks: {
+      cacheGroups: {
+        antv: { name: "vue", test: /[\\/](vue|element-ui)[\\/]/, chunks: "all", priority: 10 },
+      }
+    }
   },
   watch: !isProd,
   mode: isProd ? 'production' : 'development',

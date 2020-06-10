@@ -33,7 +33,7 @@ export class XtermTerminal implements TerminalService {
         io.on('connection', (socket) => this.handlerSocket(socket, sshConfig, server, callback))
         server.listen(port);
         ViewManager.createWebviewPanel({
-            splitView: false, path: "xterm/client", iconPath: "xterm/favicon.ico",
+            splitView: false, path: "client", iconPath: "xterm/favicon.ico",
             title: `ssh://${sshConfig.username}@${sshConfig.host}`, initListener: (viewPanel: WebviewPanel) => {
                 viewPanel.webview.postMessage({ type: "CONNECTION", socketPath: "http://127.0.0.1:" + port })
             },

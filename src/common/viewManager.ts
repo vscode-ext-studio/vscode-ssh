@@ -39,7 +39,7 @@ export class ViewManager {
     private static viewStatu: { [key: string]: ViewState } = {};
     private static webviewPath: string;
     public static initExtesnsionPath(extensionPath: string) {
-        this.webviewPath = extensionPath + "/resources/webview"
+        this.webviewPath = extensionPath + "/out/webview"
     }
 
     public static createWebviewPanel(viewOption: ViewOption): Promise<WebviewPanel> {
@@ -87,7 +87,7 @@ export class ViewManager {
                 }
                 this.viewStatu[viewOption.title].instance = webviewPanel
                 const contextPath = path.resolve(targetPath, "..");
-                webviewPanel.webview.html = this.buildInclude(this.buildPath(data, webviewPanel.webview, contextPath), contextPath);
+                webviewPanel.webview.html = this.buildPath(data, webviewPanel.webview, contextPath);
 
                 webviewPanel.onDidDispose(() => {
                     this.viewStatu[viewOption.title] = null
@@ -109,24 +109,10 @@ export class ViewManager {
         });
 
     }
-    private static buildInclude(data: string, fileFolderPath: string): string {
 
-        const reg = new RegExp(`<include path="(.+?)" (\\/)?>`, 'ig')
-        let match = reg.exec(data)
-        while (match != null) {
-            const includePath = match[1].startsWith("/") ? this.webviewPath + match[1] : (fileFolderPath + "/" + match[1]);
-            const includeContent = fs.readFileSync(includePath, 'utf8')
-            if (includeContent) {
-                data = data.replace(match[0], includeContent)
-            }
-            match = reg.exec(data)
-        }
-
-        return data;
+    private static buildPath(data: string, webview: vscode.Webview, contextPath: string): string {
+        return data.replace(/((src|href)=("|'))(.+?\.(css|js))\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${contextPath}/`)) + "/$4");
     }
 
-    private static buildPath(data: string, webview: vscode.Webview, parentPath: string): string {
-        return data.replace(/("|')\/?(css|js)\b/gi, "$1" + webview.asWebviewUri(vscode.Uri.file(`${parentPath}/`)) + "/$2");
-    }
 
 }
