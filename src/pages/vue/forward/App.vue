@@ -53,7 +53,7 @@ export default {
       error: false,
       errorMessage: "",
       panel: {
-        eidt: {}
+        edit: {}
       }
     };
   },
@@ -69,6 +69,7 @@ export default {
           break;
         case "success":
           this.error = false;
+          postMessage({ type: "reload" });
           break;
         case "error":
           this.error = true;
@@ -80,8 +81,18 @@ export default {
   },
   methods: {
     createRequest() {
-      postMessage({ type: "create", content: this.eidt });
+      postMessage({ type: "create", content: this.edit });
     },
+    start(id){
+      postMessage({ type: "start", content: id });
+    },
+    stop(id){
+      postMessage({ type: "stop", content: id });
+    },
+    remove(id){
+      postMessage({ type: "remove", content: id });
+    },
+
     openEdit(row) {},
     deleteConfirm(id) {},
     tryConnect() {

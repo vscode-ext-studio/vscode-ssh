@@ -8,13 +8,11 @@ import { ViewManager } from '../common/viewManager';
 import { ClientManager } from "../manager/clientManager";
 import { FileManager, FileModel } from '../manager/fileManager';
 import ServiceManager from '../manager/serviceManager';
-import { SSHForwardService } from '../service/forward/sshForwardService';
 import { TerminalService } from '../service/terminal/terminalService';
 import { XtermTerminal } from '../service/terminal/xtermTerminalService';
 import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
-import { ForwardInfo } from '../service/forward/forwardService';
 
 /**
  * contains connection and folder
@@ -45,22 +43,37 @@ export class ParentNode extends AbstractNode {
         Util.copyToBoard(this.sshConfig.host)
     }
 
-    private forwardService = new SSHForwardService()
+    private forwardService = new ForwardService()
     public fowardPort() {
         ViewManager.createWebviewPanel({
             splitView: false, path: "forward", title: `forward://${this.sshConfig.username}@${this.sshConfig.host}`,
             initListener: (viewPanel: vscode.WebviewPanel) => {
                 viewPanel.webview.postMessage({ type: "title", content: this.sshConfig.host })
                 viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
-            }, receiveListener: (viewPanel: vscode.WebviewPanel, message: any) => {
+            }, receiveListener: async (viewPanel: vscode.WebviewPanel, message: any) => {
                 switch (message.type) {
+                    case "start":
+                        this.forwardService.start(this.sshConfig, message.content)
+                        viewPanel.webview.postMessage({ type: "success" })
+                        break;
+                    case "stop":
+                        this.forwardService.stop(message.content)
+                        viewPanel.webview.postMessage({ type: "success" })
+                        break;
+                    case "remove":
+                        this.forwardService.remove(message.content)
+                        viewPanel.webview.postMessage({ type: "success" })
+                        break;
                     case "create":
                         try {
-                            this.forwardService.forward(this.sshConfig, message.content)
-                            viewPanel.webview.postMessage({ type: "createSuccess", content: this.forwardService.list() })
+                            await this.forwardService.forward(this.sshConfig, message.content)
+                            viewPanel.webview.postMessage({ type: "success" })
                         } catch (err) {
                             viewPanel.webview.postMessage({ type: "error", content: err.message })
                         }
+                        break;
+                    case "reload":
+                        viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
                         break;
                 }
             },
