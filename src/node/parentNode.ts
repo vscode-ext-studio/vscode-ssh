@@ -11,6 +11,7 @@ import { XtermTerminal } from '../service/terminal/xtermTerminalService';
 import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
+import { Util } from '../common/util';
 
 
 interface ParentModel {
@@ -43,6 +44,10 @@ export class ParentNode extends AbstractNode {
         } else if (iconPath) {
             this.iconPath = iconPath;
         }
+    }
+
+    public copyIP() {
+        Util.copyToBoard(this.sshConfig.host)
     }
 
     newFile(): any {

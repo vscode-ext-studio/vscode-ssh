@@ -98,6 +98,10 @@
 				"title": "New Folder"
 			},
 			{
+				"command": "ssh.IP.copy",
+				"title": "Copy IP"
+			},
+			{
 				"command": "ssh.folder.open",
 				"title": "Open In Terminal"
 			},
@@ -137,6 +141,11 @@
 					"command": "ssh.connection.terminal",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
 					"group": "inline@1"
+				},
+				{
+					"command": "ssh.IP.copy",
+					"when": "view == github.cweijan.ssh && viewItem == connection",
+					"group": "connection@-1"
 				},
 				{
 					"command": "ssh.file.new",

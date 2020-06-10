@@ -4,6 +4,7 @@ import { Command } from './common/constant';
 import ServiceManager from './manager/serviceManager';
 import { FileNode } from './node/fileNode';
 import { ParentNode } from './node/parentNode';
+import { Console } from './common/outputChannel';
 
 // TODO watch file and update
 // TODO beautify connect and support private key
@@ -13,16 +14,44 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(
         ...serviceManager.init(),
-        commands.registerCommand('ssh.add', () => serviceManager.provider.add()),
-        commands.registerCommand('ssh.connection.terminal', (parentNode: ParentNode) => parentNode.openTerminal()),
-        commands.registerCommand('ssh.connection.delete', (parentNode: ParentNode) => serviceManager.provider.delete(parentNode)),
-        commands.registerCommand('ssh.folder.new', (parentNode: ParentNode) => parentNode.newFolder()),
-        commands.registerCommand('ssh.file.new', (parentNode: ParentNode) => parentNode.newFile()),
-        commands.registerCommand('ssh.file.upload', (parentNode: ParentNode) => parentNode.upload()),
-        commands.registerCommand('ssh.folder.open', (parentNode: ParentNode) => parentNode.openInTeriminal()),
-        commands.registerCommand('ssh.file.delete', (fileNode: FileNode | ParentNode) => fileNode.delete()),
-        commands.registerCommand('ssh.file.open', (fileNode: FileNode) => fileNode.open()),
-        commands.registerCommand('ssh.file.download', (fileNode: FileNode) => fileNode.download()),
-        commands.registerCommand(Command.REFRESH, () => serviceManager.provider.refresh()),
+        ...initCommand({
+            'ssh.add': () => serviceManager.provider.add(),
+            'ssh.connection.terminal': (parentNode: ParentNode) => parentNode.openTerminal(),
+            'ssh.connection.delete': (parentNode: ParentNode) => serviceManager.provider.delete(parentNode),
+            'ssh.folder.new': (parentNode: ParentNode) => parentNode.newFolder(),
+            'ssh.file.new': (parentNode: ParentNode) => parentNode.newFile(),
+            'ssh.IP.copy': (parentNode: ParentNode) => parentNode.copyIP(),
+            'ssh.file.upload': (parentNode: ParentNode) => parentNode.upload(),
+            'ssh.folder.open': (parentNode: ParentNode) => parentNode.openInTeriminal(),
+            'ssh.file.delete': (fileNode: FileNode | ParentNode) => fileNode.delete(),
+            'ssh.file.open': (fileNode: FileNode) => fileNode.open(),
+            'ssh.file.download': (fileNode: FileNode) => fileNode.download(),
+            [Command.REFRESH]: () => serviceManager.provider.refresh(),
+        }),
+
     )
+}
+
+function commandWrapper(commandDefinition: any, command: string): (...args: any[]) => any {
+    return (...args: any[]) => {
+        try {
+            commandDefinition[command](...args);
+        }
+        catch (err) {
+            Console.log(err);
+        }
+    };
+}
+
+function initCommand(commandDefinition: any): vscode.Disposable[] {
+
+    const dispose = []
+
+    for (const command in commandDefinition) {
+        if (commandDefinition.hasOwnProperty(command)) {
+            dispose.push(vscode.commands.registerCommand(command, commandWrapper(commandDefinition, command)))
+        }
+    }
+
+    return dispose;
 }
