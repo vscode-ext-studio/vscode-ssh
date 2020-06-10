@@ -10,11 +10,14 @@ import { SSHConfig } from "./sshConfig";
 import ConnectionProvider from '../manager/connectionProvider';
 import ServiceManager from '../manager/serviceManager';
 
+const prettyBytes = require('pretty-bytes');
+
 export class FileNode extends AbstractNode {
     contextValue = NodeType.FILE;
     fullPath: string;
     constructor(readonly sshConfig: SSHConfig, readonly file: FileEntry, readonly parentName: string) {
         super(file.filename, TreeItemCollapsibleState.None)
+        this.description = prettyBytes(file.attrs.size)
         this.iconPath = this.getIcon(this.file.filename)
         this.fullPath = this.parentName + this.file.filename;
         this.command = {
@@ -42,6 +45,15 @@ export class FileNode extends AbstractNode {
         })
     }
     async open() {
+        if (this.file.attrs.size > 10485760) {
+            vscode.window.showErrorMessage("File size except 10 MB, not support open!")
+            return;
+        }
+        const extName = path.extname(this.file.filename).toLowerCase();
+        if (extName == ".gz" || extName == ".exe" || extName == ".7z" || extName == ".jar" || extName == ".bin" || extName == ".tar") {
+            vscode.window.showErrorMessage(`Not support open ${extName} file!`)
+            return;
+        }
         const { sftp } = await ClientManager.getSSH(this.sshConfig)
         const tempPath = await FileManager.record(`temp/${this.file.filename}`, null, FileModel.WRITE);
         sftp.fastGet(this.fullPath, tempPath, async (err) => {

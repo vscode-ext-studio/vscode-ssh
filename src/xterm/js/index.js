@@ -3,8 +3,6 @@
 import * as io from 'socket.io-client'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
-/* import * as fit from 'xterm/dist/addons/fit/fit'
- */
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
 import { faBars, faClipboard, faDownload, faKey, faCog } from '@fortawesome/free-solid-svg-icons'
 library.add(faBars, faClipboard, faDownload, faKey, faCog)
@@ -35,7 +33,13 @@ const term = new Terminal({
     purple: "#DB797c",
     yellow: "#DDD7A3",
     white: "#D0D4e6"
-  }
+  },
+  cursorStyle: "bar",
+  fontSize: 18,
+  fontFamily: "'Consolas ligaturized',Consolas, 'Microsoft YaHei','Courier New', monospace",
+  disableStdin: false,
+  lineHeight: 1.1,
+  rightClickSelectsWord: true
 })
 // DOM properties
 var openLogBtn = document.getElementById('openLogBtn')
@@ -46,8 +50,11 @@ var fitAddon = new FitAddon()
 var terminalContainer = document.getElementById('terminal-container')
 term.loadAddon(fitAddon)
 term.open(terminalContainer)
-term.focus()
 fitAddon.fit()
+term.focus()
+term.onData(function (data) {
+  socket.emit('data', data)
+})
 
 function resizeScreen() {
   fitAddon.fit()
@@ -55,28 +62,44 @@ function resizeScreen() {
 }
 
 window.addEventListener('resize', resizeScreen, false)
+window.addEventListener("keyup", event => {
+  if (event.key == "v" && event.ctrlKey) {
+    socket.emit('paste')
+  }
+});
+window.addEventListener("contextmenu", () => {
+  document.execCommand('copy');
+})
 
 openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => {
   socket.emit('openLog')
   term.focus()
 }))
 
+// TODO 连接后无法及时输入命令
+
 const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
 window.addEventListener('message', ({ data }) => {
   if (data.type === 'CONNECTION') {
+    var oldSocket;
+    if (socket) {
+      oldSocket = socket;
+    }
     socket = io.connect(data.socketPath)
-
-    term.onData(function (data) {
-      socket.emit('data', data)
-    })
 
     socket.on('data', function (data) {
       term.write(data)
+      term.focus()
+    })
+
+    socket.on('path', path => {
+      socket.emit('data', `cd ${path}\n`)
     })
 
     socket.on('connect', function () {
       socket.emit('geometry', term.cols, term.rows)
+      term.focus()
     })
 
     socket.on('setTerminalOpts', function (data) {
@@ -84,10 +107,12 @@ window.addEventListener('message', ({ data }) => {
       term.setOption('scrollback', data.scrollback)
       term.setOption('tabStopWidth', data.tabStopWidth)
       term.setOption('bellStyle', data.bellStyle)
+      term.focus()
     })
 
     socket.on('status', function (data) {
       status.innerHTML = data
+      term.focus()
     })
 
     socket.on('ssherror', function (data) {
@@ -131,17 +156,10 @@ window.addEventListener('message', ({ data }) => {
       }
     })
 
-    // safe shutdown
-    var hasCountdownStarted = false
+    if (oldSocket) {
+      oldSocket.close()
+    }
 
-    socket.on('shutdownCountdownUpdate', function (remainingSeconds) {
-      if (!hasCountdownStarted) {
-        countdown.classList.add('active')
-        hasCountdownStarted = true
-      }
-
-      countdown.innerText = 'Shutting down in ' + remainingSeconds + 's'
-    })
   }
 })
 postMessage({ type: 'init' })

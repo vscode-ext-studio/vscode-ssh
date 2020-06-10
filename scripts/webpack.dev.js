@@ -2,19 +2,13 @@ const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
 module.exports = {
-  context: path.resolve('__dirname', '../'),
+  mode: 'development',
+  context: path.resolve(__dirname, '../'),
   entry: {
     webssh2: './src/xterm/js/index.js'
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-    new CopyWebpackPlugin([
-      './src/xterm/client.html',
-      './src/xterm/favicon.ico'
-    ]),
-    new ExtractTextPlugin('css/[name].css')
-  ],
   output: {
     filename: 'js/[name].bundle.js',
     path: path.resolve(__dirname, '../resources/webview/xterm')
@@ -33,5 +27,17 @@ module.exports = {
         })
       }
     ]
-  }
+  },
+  resolve: {
+    extensions: ['.js', '.css'],
+    alias: {
+      '@': path.resolve(__dirname, '../src')
+    }
+  },
+  plugins: [
+    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+    new CopyWebpackPlugin(['./src/xterm/client.html', './src/xterm/favicon.ico']),
+    new ExtractTextPlugin('css/[name].css')
+  ],
+  watch: true
 }

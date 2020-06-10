@@ -13,14 +13,6 @@ import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { Util } from '../common/util';
 
-
-interface ParentModel {
-    file: FileEntry;
-    parentName: string;
-    iconPath: string;
-    nodeType: NodeType;
-}
-
 /**
  * contains connection and folder
  */
@@ -126,11 +118,7 @@ export class ParentNode extends AbstractNode {
     }
 
     openInTeriminal(): any {
-        if (!vscode.window.activeTerminal) {
-            vscode.window.showErrorMessage("You must open terminal.")
-        } else {
-            vscode.window.activeTerminal.sendText(`cd ${this.fullPath}`)
-        }
+        this.terminalService.openPath(this.sshConfig,this.fullPath)
     }
 
     async getChildren(): Promise<AbstractNode[]> {
