@@ -45,7 +45,6 @@ const term = new Terminal({
 var openLogBtn = document.getElementById('openLogBtn')
 var status = document.getElementById('status')
 var header = document.getElementById('header')
-var countdown = document.getElementById('countdown')
 var fitAddon = new FitAddon()
 var terminalContainer = document.getElementById('terminal-container')
 term.loadAddon(fitAddon)
@@ -75,8 +74,6 @@ openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => 
   socket.emit('openLog')
   term.focus()
 }))
-
-// TODO 连接后无法及时输入命令
 
 const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
 const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
@@ -146,7 +143,6 @@ window.addEventListener('message', ({ data }) => {
           'WEBSOCKET SERVER DISCONNECTED: ' + err
       }
       socket.io.reconnection(false)
-      countdown.classList.remove('active')
     })
 
     socket.on('error', function (err) {
