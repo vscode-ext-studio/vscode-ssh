@@ -18,21 +18,52 @@
       <el-table-column prop="remotePort" label="Remote Port">
       </el-table-column>
       <el-table-column prop="state" label="State">
+        <template slot-scope="scope">
+          {{scope.row.state==true?"running":"stop"}}
+        </template>
       </el-table-column>
-      <el-table-column fixed="right" width="100">
+      <el-table-column fixed="right" width="150">
         <template slot="header" slot-scope="scope">
           <el-button type="info" icon="el-icon-circle-plus-outline" size="small" circle @click="createRequest">
           </el-button>
         </template>
         <template slot-scope="scope">
+          <el-button v-if="!scope.row.state" @click="start(scope.row.id);" type="success" size="small" title="Start" icon="el-icon-video-play" circle>
+          </el-button>
+          <el-button v-if="scope.row.state" @click="stop(scope.row.id);" type="danger" size="small" title="Stop" icon="el-icon-switch-button" circle>
+          </el-button>
           <el-button @click="openEdit(scope.row);" type="primary" size="small" title="Edit" icon="el-icon-edit" circle>
           </el-button>
-          <el-button @click="deleteConfirm(scope.row[result.id])" title="delete" type="danger" size="small" icon="el-icon-delete" circle>
+          <el-button @click="deleteConfirm(scope.row.id)" title="delete" type="danger" size="small" icon="el-icon-delete" circle>
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-    </el-table>
+    <el-dialog ref="editDialog" :title="panel.title" :visible.sync="panel.visible" width="90%" top="3vh" size="small">
+      <el-form ref="infoForm" :model="panel.edit" label-width="120px">
+        <el-form-item size="mini" label="name">
+          <el-input v-model="panel.edit.name"></el-input>
+        </el-form-item>
+        <el-form-item size="mini" label="localHost">
+          <el-input v-model="panel.edit.localHost"></el-input>
+        </el-form-item>
+        <el-form-item size="mini" label="localPort">
+          <el-input v-model="panel.edit.localPort"></el-input>
+        </el-form-item>
+        <el-form-item size="mini" label="remoteHost">
+          <el-input v-model="panel.edit.remoteHost"></el-input>
+        </el-form-item>
+        <el-form-item size="mini" label="remotePort">
+          <el-input v-model="panel.edit.remotePort"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="panel.visible = false">Cancel</el-button>
+        <el-button type="primary" :loading="panel.loading" @click="confirmUpdate">
+          {{panel.edit.id!=null?"Update":"Create"}}
+        </el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -53,6 +84,9 @@ export default {
       error: false,
       errorMessage: "",
       panel: {
+        title: "create foward",
+        visible: false,
+        loading: false,
         edit: {}
       }
     };
@@ -63,6 +97,8 @@ export default {
       switch (data.type) {
         case "forwardList":
           this.forwardList = data.content;
+          this.panel.loading = false;
+          this.panel.visible = false;
           break;
         case "title":
           this.title = data.content;
@@ -81,19 +117,52 @@ export default {
   },
   methods: {
     createRequest() {
-      postMessage({ type: "create", content: this.edit });
+      this.panel.edit = {
+        localHost: "127.0.0.1",
+        remoteHost: "127.0.0.1"
+      };
+      this.panel.visible = true;
     },
-    start(id){
+    confirmUpdate() {
+      postMessage({ type: "update", content: this.panel.edit });
+      this.panel.loading = true;
+    },
+    start(id) {
       postMessage({ type: "start", content: id });
     },
-    stop(id){
+    stop(id) {
       postMessage({ type: "stop", content: id });
     },
-    remove(id){
+    remove(id) {
       postMessage({ type: "remove", content: id });
     },
     openEdit(row) {
-
+      this.panel.edit = row;
+      this.panel.visible = true;
+    },
+    deleteConfirm(id) {
+      this.$confirm(
+        "Are you sure you want to delete this forward?",
+        "Warning",
+        {
+          confirmButtonText: "OK",
+          cancelButtonText: "Cancel",
+          type: "warning"
+        }
+      )
+        .then(() => {
+          remove(id);
+        })
+        .catch(() => {
+          this.$message({ type: "info", message: "Delete canceled" });
+        });
+    },
+    tryConnect() {
+      postMessage({
+        type: "CONNECT_TO_SQL_SERVER",
+        databaseType: this.databaseType,
+        connectionOption: this.connectionOption
+      });
     }
   }
 };
