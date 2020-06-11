@@ -27,7 +27,7 @@ export class ForwardService {
     }
 
     public forward(sshConfig: SSHConfig, forwardInfo: ForwardInfo, create?: boolean): Promise<void> {
-        if (!create) create = true;
+        if (create == null) create = true;
 
         return new Promise((resolve, reject) => {
 
@@ -91,7 +91,8 @@ export class ForwardService {
             const forwardInfo = forwardInfos[i]
             if (forwardInfo.id == id) {
                 this.stop(id)
-                Util.store(`${this.store_key}_${sshConfig.host}_${sshConfig.port}`, forwardInfos.splice(i, 1))
+                forwardInfos.splice(i, 1)
+                Util.store(`${this.store_key}_${sshConfig.host}_${sshConfig.port}`, forwardInfos)
                 return;
             }
         }
