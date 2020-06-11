@@ -38,19 +38,18 @@ export class XtermTerminal implements TerminalService {
 
         const sshUrl = this.getSshUrl(sshConfig);
         let dataBuffer = "";
-        handler.on("init", ({ cols, rows }) => {
-            let termCols = cols
-            let termRows = rows
+        handler.on("init", (content) => {
+            let termCols: number, termRows: number;
+            if (content) {
+                termCols = content.cols;
+                termRows = content.rows
+            }
             const client = new Client()
-            const end=()=>{ client.end(); XtermTerminal.handlerMap[sshUrl] = null; }
+            const end = () => { client.end(); XtermTerminal.handlerMap[sshUrl] = null; }
             const SSHerror = (message: string, err: any) => { handler.emit('ssherror', (err) ? `${message}: ${err.message}` : message); end(); }
             client.on('ready', () => {
                 XtermTerminal.handlerMap[sshUrl] = handler
-                client.shell({
-                    term: 'xterm-color',
-                    cols: termCols,
-                    rows: termRows
-                }, (err, stream) => {
+                client.shell({ term: 'xterm-color', cols: termCols, rows: termRows }, (err, stream) => {
                     if (err) {
                         SSHerror('EXEC ERROR' + err, null)
                         return
@@ -99,5 +98,5 @@ export class XtermTerminal implements TerminalService {
         })
 
     }
-    
+
 }

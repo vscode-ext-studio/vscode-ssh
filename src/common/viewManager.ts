@@ -75,10 +75,10 @@ export class ViewManager {
                     if (currentStatus.creating) {
                         currentStatus.initListener = viewOption.initListener
                     } else if (viewOption.initListener) {
-                        currentStatus.eventEmitter.emit('init')
                         viewOption.initListener(currentStatus.instance)
                     }
                     if (viewOption.receiveListener) { currentStatus.receiveListener = viewOption.receiveListener }
+                    currentStatus.eventEmitter.emit('init')
                     return Promise.resolve(currentStatus.instance);
                 }
             }
