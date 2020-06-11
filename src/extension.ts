@@ -10,7 +10,6 @@ import { Util } from './common/util';
 export function activate(context: ExtensionContext) {
 
     const serviceManager = new ServiceManager(context)
-    Util.initStroe(context)
 
     context.subscriptions.push(
         ...serviceManager.init(),

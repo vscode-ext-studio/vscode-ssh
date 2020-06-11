@@ -103,6 +103,7 @@ export class FileNode extends AbstractNode {
             case 'html': fileIcon = "html.svg"; break;
             case 'java': case 'class': fileIcon = "java.svg"; break;
             case 'js': case 'map': fileIcon = "javascript.svg"; break;
+            case 'yml': case 'yaml': fileIcon = "yaml.svg"; break;
             case 'json': fileIcon = "json.svg"; break;
             case 'sh': fileIcon = "console.svg"; break;
             case 'cfg': case 'conf': fileIcon = "settings.svg"; break;

@@ -28,10 +28,10 @@ export class ParentNode extends AbstractNode {
         this.fullPath = this.parentName + this.name;
         if (!file) {
             this.contextValue = NodeType.CONNECTION;
-            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `connection.svg`);
+            this.iconPath = path.join(ServiceManager.context.extensionPath, 'resources', 'image', `connection.svg`);
         } else {
             this.contextValue = NodeType.FOLDER;
-            this.iconPath = path.join(__dirname, '..', '..', 'resources', 'image', `folder.svg`);
+            this.iconPath = path.join(ServiceManager.context.extensionPath, 'resources', 'image', `folder.svg`);
         }
         if (file && file.filename.toLocaleLowerCase() == "home") {
             this.iconPath = `${ServiceManager.context.extensionPath}/resources/image/folder-core.svg`;

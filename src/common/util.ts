@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import ServiceManager from "../manager/serviceManager";
 
 export enum Confirm {
     YES = "YES", NO = "NO"
@@ -19,16 +20,11 @@ export class Util {
     }
 
 
-
-    private static context: vscode.ExtensionContext
-    public static initStroe(context: vscode.ExtensionContext) {
-        this.context = context;
-    }
     public static getStore(key: string): any {
-        return this.context.globalState.get(key);
+        return ServiceManager.context.globalState.get(key);
     }
     public static store(key: string, object: any) {
-        this.context.globalState.update(key, object)
+        ServiceManager.context.globalState.update(key, object)
     }
 
 }
