@@ -1,5 +1,5 @@
 import { SSHConfig } from "../../node/sshConfig";
-import tunnel = require('tunnel-ssh')
+import tunnel = require('./tunnel')
 import { Console } from "../../common/outputChannel";
 import { Util } from "../../common/util";
 
@@ -48,6 +48,7 @@ export class ForwardService {
                 localPort: forwardInfo.localPort,
                 dstHost: forwardInfo.remoteHost,
                 dstPort: forwardInfo.remotePort,
+                keepAlive: true,
                 privateKey: (() => {
                     if (sshConfig.private) {
                         return require('fs').readFileSync(sshConfig.private)
