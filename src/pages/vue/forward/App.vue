@@ -93,6 +93,7 @@ export default {
   },
   mounted() {
     window.addEventListener("message", ({ data }) => {
+      console.log(data)
       if (!data) return;
       switch (data.type) {
         case "forwardList":

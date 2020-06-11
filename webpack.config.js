@@ -5,7 +5,34 @@ const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-module.exports = {
+module.exports = [{
+  target: "node",
+  node: {
+    fs: 'empty', net: 'empty', tls: 'empty',
+    child_process: 'empty', dns: 'empty',
+    global: true, __dirname: true
+  },
+  entry: ['./src/extension.ts'],
+  output: {
+    path: path.resolve(__dirname, 'out'),
+    filename: 'extension.js',
+    libraryTarget: 'commonjs2',
+    // config source map sources url
+    devtoolModuleFilenameTemplate: '[absoluteResourcePath]',
+  },
+  externals: {
+    vscode: 'commonjs vscode'
+  },
+  resolve: {
+    extensions: ['.ts', '.js']
+  },
+  module: { rules: [{ test: /\.ts$/, exclude: /node_modules/, use: ['ts-loader'] }] },
+  optimization: { minimize: false },
+  watch: !isProd,
+  mode: isProd ? 'production' : 'development',
+  devtool: isProd ? false : 'source-map',
+},
+{
   mode: 'development',
   entry: {
     webssh2: './src/pages/xterm/js/index.js',
@@ -50,3 +77,4 @@ module.exports = {
   mode: isProd ? 'production' : 'development',
   devtool: isProd ? false : 'source-map',
 }
+]

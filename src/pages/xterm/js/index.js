@@ -1,6 +1,5 @@
 'use strict'
 
-import * as io from 'socket.io-client'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
@@ -8,11 +7,28 @@ import { faBars, faClipboard, faDownload, faKey, faCog } from '@fortawesome/free
 library.add(faBars, faClipboard, faDownload, faKey, faCog)
 dom.watch()
 
+const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
+const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
+let events = {}
+window.addEventListener('message', ({ data }) => {
+  if (events[data.type]) {
+    events[data.type](data.content);
+  }
+})
+const vscodeEvent = {
+  on(event, data) {
+    events[event] = data
+    return vscodeEvent;
+  },
+  emit(event, data) {
+    postMessage({ type: event, content: data })
+  }
+}
+
 require('xterm/css/xterm.css')
 require('../css/style.css')
 
 var errorExists = false;
-var socket;
 const term = new Terminal({
   theme: {
     foreground: "#D0D4e6",
@@ -39,7 +55,8 @@ const term = new Terminal({
   fontFamily: "'Consolas ligaturized',Consolas, 'Microsoft YaHei','Courier New', monospace",
   disableStdin: false,
   lineHeight: 1.1,
-  rightClickSelectsWord: true
+  rightClickSelectsWord: true,
+  cursorBlink: true, scrollback: 10000, tabStopWidth: 8, bellStyle: "sound"
 })
 // DOM properties
 var openLogBtn = document.getElementById('openLogBtn')
@@ -51,19 +68,19 @@ term.loadAddon(fitAddon)
 term.open(terminalContainer)
 fitAddon.fit()
 term.focus()
-term.onData(function (data) {
-  socket.emit('data', data)
+term.onData((data) => {
+  vscodeEvent.emit('data', data)
 })
 
 function resizeScreen() {
   fitAddon.fit()
-  socket.emit('resize', { cols: term.cols, rows: term.rows })
+  vscodeEvent.emit('resize', { cols: term.cols, rows: term.rows })
 }
 
 window.addEventListener('resize', resizeScreen, false)
 window.addEventListener("keyup", event => {
   if (event.key == "v" && event.ctrlKey) {
-    socket.emit('paste')
+    vscodeEvent.emit('paste')
   }
 });
 window.addEventListener("contextmenu", () => {
@@ -71,91 +88,41 @@ window.addEventListener("contextmenu", () => {
 })
 
 openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => {
-  socket.emit('openLog')
+  vscodeEvent.emit('openLog')
   term.focus()
 }))
 
-const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
-const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
-window.addEventListener('message', ({ data }) => {
-  if (data.type === 'CONNECTION') {
-    var oldSocket;
-    if (socket) {
-      oldSocket = socket;
+vscodeEvent
+  .on('data', (content) => {
+    term.write(content)
+    term.focus()
+  })
+  .on('path', path => {
+    vscodeEvent.emit('data', `cd ${path}\n`)
+  })
+  .on('status', (data) => {
+    status.innerHTML = data
+    term.focus()
+  })
+  .on('ssherror', (data) => {
+    status.innerHTML = data
+    status.style.backgroundColor = 'red'
+    errorExists = true
+  })
+  .on('header', (data) => {
+    if (data) {
+      document.getElementById('headerHost').innerHTML = data
+      header.style.display = 'block'
+      // header is 19px and footer is 19px, recaculate new terminal-container and resize
+      terminalContainer.style.height = 'calc(100% - 38px)'
+      resizeScreen()
     }
-    socket = io.connect(data.socketPath)
-
-    socket.on('data', function (data) {
-      term.write(data)
-      term.focus()
-    })
-
-    socket.on('path', path => {
-      socket.emit('data', `cd ${path}\n`)
-    })
-
-    socket.on('connect', function () {
-      socket.emit('geometry', term.cols, term.rows)
-      term.focus()
-    })
-
-    socket.on('setTerminalOpts', function (data) {
-      term.setOption('cursorBlink', data.cursorBlink)
-      term.setOption('scrollback', data.scrollback)
-      term.setOption('tabStopWidth', data.tabStopWidth)
-      term.setOption('bellStyle', data.bellStyle)
-      term.focus()
-    })
-
-    socket.on('status', function (data) {
-      status.innerHTML = data
-      term.focus()
-    })
-
-    socket.on('ssherror', function (data) {
-      status.innerHTML = data
+  })
+  .on('error', (err) => {
+    if (!errorExists) {
       status.style.backgroundColor = 'red'
-      errorExists = true
-    })
-
-    socket.on('headerBackground', function (data) {
-      header.style.backgroundColor = data
-    })
-
-    socket.on('header', function (data) {
-      if (data) {
-        document.getElementById('headerHost').innerHTML = data
-        header.style.display = 'block'
-        // header is 19px and footer is 19px, recaculate new terminal-container and resize
-        terminalContainer.style.height = 'calc(100% - 38px)'
-        resizeScreen()
-      }
-    })
-
-    socket.on('statusBackground', function (data) {
-      status.style.backgroundColor = data
-    })
-
-    socket.on('disconnect', function (err) {
-      if (!errorExists) {
-        status.style.backgroundColor = 'red'
-        status.innerHTML =
-          'WEBSOCKET SERVER DISCONNECTED: ' + err
-      }
-      socket.io.reconnection(false)
-    })
-
-    socket.on('error', function (err) {
-      if (!errorExists) {
-        status.style.backgroundColor = 'red'
-        status.innerHTML = 'ERROR: ' + err
-      }
-    })
-
-    if (oldSocket) {
-      oldSocket.close()
+      status.innerHTML = 'ERROR: ' + err
     }
+  })
 
-  }
-})
-postMessage({ type: 'init' })
+vscodeEvent.emit('init', { cols: term.cols, rows: term.rows })

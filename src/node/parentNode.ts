@@ -48,40 +48,33 @@ export class ParentNode extends AbstractNode {
     public fowardPort() {
         ViewManager.createWebviewPanel({
             splitView: false, path: "forward", title: `forward://${this.sshConfig.username}@${this.sshConfig.host}`,
-            initListener: (viewPanel: vscode.WebviewPanel) => {
-                viewPanel.webview.postMessage({ type: "title", content: this.sshConfig.host })
-                viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list(this.sshConfig) })
-            }, receiveListener: async (viewPanel: vscode.WebviewPanel, message: any) => {
-                switch (message.type) {
-                    case "create":
-                    case "update":
-                        if (message.content.id) {
-                            this.forwardService.remove(this.sshConfig, message.content.id)
-                        }
-                        try {
-                            await this.forwardService.forward(this.sshConfig, message.content)
-                            viewPanel.webview.postMessage({ type: "success" })
-                        } catch (err) {
-                            viewPanel.webview.postMessage({ type: "error", content: err.message })
-                        }
-                        break;
-                    case "start":
-                        this.forwardService.start(this.sshConfig, message.content)
-                        viewPanel.webview.postMessage({ type: "success" })
-                        break;
-                    case "stop":
-                        this.forwardService.stop(message.content)
-                        viewPanel.webview.postMessage({ type: "success" })
-                        break;
-                    case "remove":
-                        this.forwardService.remove(this.sshConfig, message.content)
-                        viewPanel.webview.postMessage({ type: "success" })
-                        break;
-                    case "load":
-                        viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list(this.sshConfig) })
-                        break;
-                }
-            },
+            eventHandler: (handler) => {
+                handler.on("init", () => {
+                    handler.emit("title", this.sshConfig.host)
+                    handler.emit("forwardList", this.forwardService.list(this.sshConfig))
+                }).on("update", async content => {
+                    if (content.id) {
+                        this.forwardService.remove(this.sshConfig, content.id)
+                    }
+                    try {
+                        await this.forwardService.forward(this.sshConfig, content)
+                        handler.emit("success")
+                    } catch (err) {
+                        handler.emit("error", err.message)
+                    }
+                }).on("start", async content => {
+                    await this.forwardService.start(this.sshConfig, content)
+                    handler.emit("success")
+                }).on("stop", content => {
+                    this.forwardService.stop(content)
+                    handler.emit("success")
+                }).on("remove", content => {
+                    this.forwardService.remove(this.sshConfig, content)
+                    handler.emit("success")
+                }).on("load", () => {
+                    handler.emit("forwardList", this.forwardService.list(this.sshConfig))
+                })
+            }
         })
     }
 

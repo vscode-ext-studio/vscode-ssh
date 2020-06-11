@@ -66,45 +66,39 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
 
         ViewManager.createWebviewPanel({
             path: "connect", title: "Add SSH Config", splitView: false,
-            receiveListener: (viewPanel, message: any) => {
+            eventHandler: (handler) => {
+                handler.on("CONNECT_TO_SQL_SERVER", (content) => {
+                    const sshConfig: SSHConfig = content.connectionOption
+                    let msg = null;
+                    if (!sshConfig.username) {
+                        msg = "You must input username!"
+                    }
+                    if (!sshConfig.password && !sshConfig.private) {
+                        msg = "You must input password!"
+                    }
+                    if (!sshConfig.host) {
+                        msg = "You must input host!"
+                    }
+                    if (!sshConfig.port) {
+                        msg = "You must input port!"
+                    }
+                    if (msg) {
+                        handler.emit('CONNECTION_ERROR', msg)
+                        return;
+                    }
 
-                const sshConfig: SSHConfig = message.connectionOption
-                let msg = null;
-                if (!sshConfig.username) {
-                    msg = "You must input username!"
-                }
-                if (!sshConfig.password && !sshConfig.private) {
-                    msg = "You must input password!"
-                }
-                if (!sshConfig.host) {
-                    msg = "You must input host!"
-                }
-                if (!sshConfig.port) {
-                    msg = "You must input port!"
-                }
-                if (msg) {
-                    viewPanel.webview.postMessage({
-                        type: 'CONNECTION_ERROR',
-                        err: msg,
-                    });
-                    return;
-                }
-
-                ClientManager.getSSH(sshConfig).then(() => {
-                    const id = `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
-                    const configs = this.getConnections();
-                    configs[id] = sshConfig;
-                    this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
-                    viewPanel.dispose();
-                    this.refresh();
-                }).catch(err => {
-                    viewPanel.webview.postMessage({
-                        type: 'CONNECTION_ERROR',
-                        err: err.message
+                    ClientManager.getSSH(sshConfig).then(() => {
+                        const id = `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
+                        const configs = this.getConnections();
+                        configs[id] = sshConfig;
+                        this.context.globalState.update(CacheKey.CONECTIONS_CONFIG, configs);
+                        handler.panel.dispose()
+                        this.refresh();
+                    }).catch(err => {
+                        handler.emit('CONNECTION_ERROR', err.message)
                     })
+
                 })
-
-
             }
         })
 
