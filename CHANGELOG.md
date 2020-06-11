@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.0 (2020/6/11)
+- Support copy IP.
+- Add port forward.
+
 ## 1.3.0 (2020/6/6)
 - Copy when right click mouse in terminal.
 - Support ctrl+v to paste in terminal;
