@@ -24,8 +24,8 @@
       </el-table-column>
       <el-table-column fixed="right" width="150">
         <template slot="header" slot-scope="scope">
-          <el-button type="info" icon="el-icon-circle-plus-outline" size="small" circle @click="createRequest">
-          </el-button>
+          <el-button type="info" icon="el-icon-circle-plus-outline" size="small" circle @click="createRequest"> </el-button>
+          <el-button type="primary" icon="el-icon-refresh" size="small" circle @click="load"> </el-button>
         </template>
         <template slot-scope="scope">
           <el-button v-if="!scope.row.state" @click="start(scope.row.id);" type="success" size="small" title="Start" icon="el-icon-video-play" circle>
@@ -122,6 +122,9 @@ export default {
         remoteHost: "127.0.0.1"
       };
       this.panel.visible = true;
+    },
+    load(){
+      postMessage({ type: "load" });
     },
     confirmUpdate() {
       postMessage({ type: "update", content: this.panel.edit });
