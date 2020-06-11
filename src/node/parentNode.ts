@@ -50,13 +50,13 @@ export class ParentNode extends AbstractNode {
             splitView: false, path: "forward", title: `forward://${this.sshConfig.username}@${this.sshConfig.host}`,
             initListener: (viewPanel: vscode.WebviewPanel) => {
                 viewPanel.webview.postMessage({ type: "title", content: this.sshConfig.host })
-                viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
+                viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list(this.sshConfig) })
             }, receiveListener: async (viewPanel: vscode.WebviewPanel, message: any) => {
                 switch (message.type) {
                     case "create":
                     case "update":
-                        if(message.content.id){
-                            this.forwardService.remove(message.content.id)
+                        if (message.content.id) {
+                            this.forwardService.remove(this.sshConfig, message.content.id)
                         }
                         try {
                             await this.forwardService.forward(this.sshConfig, message.content)
@@ -74,11 +74,11 @@ export class ParentNode extends AbstractNode {
                         viewPanel.webview.postMessage({ type: "success" })
                         break;
                     case "remove":
-                        this.forwardService.remove(message.content)
+                        this.forwardService.remove(this.sshConfig, message.content)
                         viewPanel.webview.postMessage({ type: "success" })
                         break;
                     case "load":
-                        viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list() })
+                        viewPanel.webview.postMessage({ type: "forwardList", content: this.forwardService.list(this.sshConfig) })
                         break;
                 }
             },

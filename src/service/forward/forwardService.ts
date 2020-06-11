@@ -26,34 +26,48 @@ export class ForwardService {
         }
     }
 
-    public forward(ssh: SSHConfig, forwardInfo: ForwardInfo): Promise<void> {
+    public forward(sshConfig: SSHConfig, forwardInfo: ForwardInfo, create?: boolean): Promise<void> {
+        if (!create) create = true;
 
         return new Promise((resolve, reject) => {
 
+            const id = `${sshConfig.host}_${sshConfig.port}_${forwardInfo.localHost}_${forwardInfo.localPort}_${forwardInfo.remoteHost}_${forwardInfo.remotePort}`
+            if (create) {
+                const forwards = this.list(sshConfig)
+                for (const forward of forwards) {
+                    if (forward.id == id) {
+                        reject({ message: "This forward is exists!" })
+                        return;
+                    }
+                }
+            }
+
             const config = {
-                ...ssh,
+                ...sshConfig,
                 localHost: forwardInfo.localHost,
                 localPort: forwardInfo.localPort,
                 dstHost: forwardInfo.remoteHost,
                 dstPort: forwardInfo.remotePort,
                 privateKey: (() => {
-                    if (ssh.private) {
-                        return require('fs').readFileSync(ssh.private)
+                    if (sshConfig.private) {
+                        return require('fs').readFileSync(sshConfig.private)
                     }
                 })()
             };
-            const id = `${ssh.host}_${ssh.port}_${forwardInfo.localHost}_${forwardInfo.localPort}_${forwardInfo.remoteHost}_${forwardInfo.remotePort}`
+
             const localTunnel = tunnel(config, (error, server) => {
                 this.tunelMark[id] = { tunnel: localTunnel }
                 if (error) {
                     delete this.tunelMark[id]
                     reject(error)
                 }
+                if (create) {
+                    forwardInfo.id = id
+                    const forwardInfos = this.list(sshConfig)
+                    forwardInfos.push(forwardInfo)
+                    Util.store(`${this.store_key}_${sshConfig.host}_${sshConfig.port}`, forwardInfos)
+                }
                 resolve();
-                forwardInfo.id = id
-                const forwardInfos = this.list()
-                forwardInfos.push(forwardInfo)
-                Util.store(this.store_key, forwardInfos)
             });
             localTunnel.on('error', (err) => {
                 Console.log('Ssh tunel occur error : ' + err);
@@ -71,34 +85,38 @@ export class ForwardService {
         this.closeTunnel(id)
     }
 
-    public remove(id: any) {
-        const forwardInfos = this.list()
+    public remove(sshConfig: SSHConfig, id: any) {
+        const forwardInfos = this.list(sshConfig)
         for (let i = 0; i < forwardInfos.length; i++) {
             const forwardInfo = forwardInfos[i]
             if (forwardInfo.id == id) {
                 this.stop(id)
-                forwardInfos.splice(i, 1)
-            }
-        }
-    }
-
-    public async start(sshConfig: SSHConfig, id: any) {
-        for (const forwardInfo of this.list()) {
-            if (forwardInfo.id == id) {
-                await this.forward(sshConfig, forwardInfo)
+                Util.store(`${this.store_key}_${sshConfig.host}_${sshConfig.port}`, forwardInfos.splice(i, 1))
                 return;
             }
         }
     }
 
-    public list(): ForwardInfo[] {
-        const ForwardInfos: ForwardInfo[] = Util.getStore(this.store_key)
-        for (const forwardInfos of ForwardInfos) {
-            if (this.tunelMark[forwardInfos.id]) {
-                forwardInfos.state = true;
+    public async start(sshConfig: SSHConfig, id: any) {
+        for (const forwardInfo of this.list(sshConfig)) {
+            if (forwardInfo.id == id) {
+                await this.forward(sshConfig, forwardInfo, false)
+                return;
             }
         }
-        return ForwardInfos;
+    }
+
+    public list(sshConfig: SSHConfig): ForwardInfo[] {
+        const forwardInfos: ForwardInfo[] = Util.getStore(`${this.store_key}_${sshConfig.host}_${sshConfig.port}`)
+        if (!forwardInfos) return [];
+        for (const forwardInfo of forwardInfos) {
+            if (this.tunelMark[forwardInfo.id]) {
+                forwardInfo.state = true;
+            } else {
+                forwardInfo.state = false;
+            }
+        }
+        return forwardInfos;
     }
 
 }

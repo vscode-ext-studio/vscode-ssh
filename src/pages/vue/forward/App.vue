@@ -151,7 +151,7 @@ export default {
         }
       )
         .then(() => {
-          remove(id);
+          this.remove(id);
         })
         .catch(() => {
           this.$message({ type: "info", message: "Delete canceled" });
