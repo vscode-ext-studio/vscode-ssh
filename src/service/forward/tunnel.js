@@ -13,10 +13,32 @@ function getId(config) {
 }
 
 function bindSSHConnection(config, netConnection) {
+
     let id = getId(config)
+
+    function forward(sshConnection, netConnection) {
+        sshConnection.forwardOut(config.srcHost, config.srcPort, config.dstHost, config.dstPort, function (err, sshStream) {
+            if (err) {
+                netConnection.emit('error', err);
+                debug('Destination port:', err);
+                return;
+            }
+            debug('sshStream:create');
+            tunelMark[id] = { connection: sshConnection, stream: sshStream }
+            sshStream.on('finish', () => {
+                forward(sshConnection, null);
+            }).on('error', function (error) {
+                console.log(err)
+                delete tunelMark[id]
+            });
+            if (netConnection) {
+                netConnection.pipe(sshStream).pipe(netConnection);
+            }
+        });
+    }
+
     if (tunelMark[id]) {
         const stream = tunelMark[id].stream
-        netConnection.emit('sshStream', stream);
         netConnection.pipe(stream).pipe(netConnection);
         return;
     }
@@ -25,19 +47,7 @@ function bindSSHConnection(config, netConnection) {
     sshConnection.on('ready', function () {
         debug('sshConnection:ready');
         netConnection.emit('sshConnection', sshConnection, netConnection);
-        sshConnection.forwardOut(config.srcHost, config.srcPort, config.dstHost, config.dstPort, function (err, sshStream) {
-            if (err) {
-                // Bubble up the error => netConnection => server
-                netConnection.emit('error', err);
-                debug('Destination port:', err);
-                return;
-            }
-
-            debug('sshStream:create');
-            tunelMark[id] = { connection: sshConnection, stream: sshStream }
-            netConnection.emit('sshStream', sshStream);
-            netConnection.pipe(sshStream).pipe(netConnection);
-        });
+        forward(sshConnection, netConnection)
     });
     return sshConnection;
 }
@@ -69,12 +79,6 @@ function createServer(config) {
         server.emit('netConnection', netConnection, server);
         sshConnection = bindSSHConnection(config, netConnection);
         sshConnection.on('error', server.emit.bind(server, 'error'));
-
-        netConnection.on('sshStream', function (sshStream) {
-            sshStream.on('error', function () {
-                server.close();
-            });
-        });
 
         connections.push(sshConnection, netConnection);
         sshConnection.connect(config);

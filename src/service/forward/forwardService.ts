@@ -70,14 +70,6 @@ export class ForwardService {
                 }
                 resolve();
             });
-            localTunnel.on('error', (err) => {
-                Console.log('Ssh tunel occur error : ' + err);
-                if (err) {
-                    localTunnel.close()
-                    delete this.tunelMark[id]
-                }
-            });
-
         })
 
     }
