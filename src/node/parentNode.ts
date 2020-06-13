@@ -46,36 +46,7 @@ export class ParentNode extends AbstractNode {
 
     private forwardService = new ForwardService()
     public fowardPort() {
-        ViewManager.createWebviewPanel({
-            splitView: false, path: "forward", title: `forward://${this.sshConfig.username}@${this.sshConfig.host}`,
-            eventHandler: (handler) => {
-                handler.on("init", () => {
-                    handler.emit("title", this.sshConfig.host)
-                    handler.emit("forwardList", this.forwardService.list(this.sshConfig))
-                }).on("update", async content => {
-                    if (content.id) {
-                        this.forwardService.remove(this.sshConfig, content.id)
-                    }
-                    try {
-                        await this.forwardService.forward(this.sshConfig, content)
-                        handler.emit("success")
-                    } catch (err) {
-                        handler.emit("error", err.message)
-                    }
-                }).on("start", async content => {
-                    await this.forwardService.start(this.sshConfig, content)
-                    handler.emit("success")
-                }).on("stop", content => {
-                    this.forwardService.stop(content)
-                    handler.emit("success")
-                }).on("remove", content => {
-                    this.forwardService.remove(this.sshConfig, content)
-                    handler.emit("success")
-                }).on("load", () => {
-                    handler.emit("forwardList", this.forwardService.list(this.sshConfig))
-                })
-            }
-        })
+        this.forwardService.createForwardView(this.sshConfig)
     }
 
     public newFile(): any {

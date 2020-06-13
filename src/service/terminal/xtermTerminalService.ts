@@ -4,6 +4,7 @@ import { Hanlder, ViewManager } from "../../common/viewManager";
 import { FileManager, FileModel } from "../../manager/fileManager";
 import { SSHConfig } from "../../node/sshConfig";
 import { TerminalService } from "./terminalService";
+import { Util } from "../../common/util";
 
 export class XtermTerminal implements TerminalService {
 
@@ -25,7 +26,7 @@ export class XtermTerminal implements TerminalService {
     public async openMethod(sshConfig: SSHConfig, callback?: () => void) {
 
         ViewManager.createWebviewPanel({
-            splitView: false, path: "client", iconPath: "xterm/favicon.ico",
+            splitView: false, path: "client", iconPath: Util.getExtPath("resources", "image", "icon", "terminal.ico"),
             title: `ssh://${sshConfig.username}@${sshConfig.host}`,
             eventHandler: (handler) => {
                 this.handlerEvent(handler, sshConfig, callback)

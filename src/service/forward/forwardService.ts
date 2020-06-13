@@ -2,6 +2,7 @@ import { SSHConfig } from "../../node/sshConfig";
 import tunnel = require('./tunnel')
 import { Console } from "../../common/outputChannel";
 import { Util } from "../../common/util";
+import { ViewManager } from "../../common/viewManager";
 
 export class ForwardInfo {
     id: any;
@@ -18,6 +19,40 @@ export class ForwardService {
 
     private tunelMark: { [key: string]: { tunnel: any } } = {};
     private store_key = "forward_store"
+
+    public createForwardView(sshConfig: SSHConfig) {
+        ViewManager.createWebviewPanel({
+            iconPath: Util.getExtPath("resources", "image", "icon", "forward.svg"),
+            splitView: false, path: "forward", title: `forward://${sshConfig.username}@${sshConfig.host}`,
+            eventHandler: (handler) => {
+                handler.on("init", () => {
+                    handler.emit("title", sshConfig.host)
+                    handler.emit("forwardList", this.list(sshConfig))
+                }).on("update", async content => {
+                    if (content.id) {
+                        this.remove(sshConfig, content.id)
+                    }
+                    try {
+                        await this.forward(sshConfig, content)
+                        handler.emit("success")
+                    } catch (err) {
+                        handler.emit("error", err.message)
+                    }
+                }).on("start", async content => {
+                    await this.start(sshConfig, content)
+                    handler.emit("success")
+                }).on("stop", content => {
+                    this.stop(content)
+                    handler.emit("success")
+                }).on("remove", content => {
+                    this.remove(sshConfig, content)
+                    handler.emit("success")
+                }).on("load", () => {
+                    handler.emit("forwardList", this.list(sshConfig))
+                })
+            }
+        })
+    }
 
     public closeTunnel(connectId: string) {
         if (this.tunelMark[connectId]) {

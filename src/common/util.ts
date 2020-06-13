@@ -1,11 +1,16 @@
 import * as vscode from "vscode";
 import ServiceManager from "../manager/serviceManager";
+import { join } from "path";
 
 export enum Confirm {
     YES = "YES", NO = "NO"
 }
 
 export class Util {
+
+    public static getExtPath(...paths: string[]) {
+        return join(ServiceManager.context.extensionPath, ...paths)
+    }
 
     public static confirm(placeHolder: string, callback: () => void) {
         vscode.window.showQuickPick([Confirm.YES, Confirm.NO], { placeHolder }).then((res) => {

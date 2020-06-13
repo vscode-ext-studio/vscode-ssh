@@ -31,7 +31,7 @@ export class ViewOption {
 
 export class Hanlder {
     constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
-    on(event: string, callback: (content: any) => void) :Hanlder{
+    on(event: string, callback: (content: any) => void): Hanlder {
         this.eventEmitter.on(event, callback)
         return this;
     }
@@ -101,7 +101,7 @@ export class ViewManager {
                     { enableScripts: true, retainContextWhenHidden: true },
                 );
                 if (viewOption.iconPath) {
-                    webviewPanel.iconPath = vscode.Uri.file(`${this.webviewPath}/${viewOption.iconPath}`)
+                    webviewPanel.iconPath = vscode.Uri.file(viewOption.iconPath)
                 }
                 this.viewStatu[viewOption.title].instance = webviewPanel
                 const contextPath = path.resolve(targetPath, "..");

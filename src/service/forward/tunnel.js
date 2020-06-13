@@ -48,6 +48,8 @@ function bindSSHConnection(config, netConnection) {
         debug('sshConnection:ready');
         netConnection.emit('sshConnection', sshConnection, netConnection);
         forward(sshConnection, netConnection)
+    }).on('error',()=>{
+        delete tunelMark[id]
     });
     return sshConnection;
 }
