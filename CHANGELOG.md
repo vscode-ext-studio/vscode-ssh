@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.5.0 (2020/6/15)
+- Update terminal UI.
+
 ## 1.4.0 (2020/6/11)
 - Support copy IP.
 - Add port forward.
