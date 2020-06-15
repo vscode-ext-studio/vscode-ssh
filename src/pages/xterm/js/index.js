@@ -2,6 +2,7 @@
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
+import { WebLinksAddon } from "xterm-addon-web-links";
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
 import { faBars, faClipboard, faDownload, faKey, faCog } from '@fortawesome/free-solid-svg-icons'
 library.add(faBars, faClipboard, faDownload, faKey, faCog)
@@ -34,10 +35,10 @@ const term = new Terminal({
     foreground: "#D0D4e6",
     background: "#2f3032",
     brightBlack: "#303845",
-    brightBlue: "#667fb1",
-    brightGreen: "#16C60C",
+    brightBlue: "#77abe7",
+    brightGreen: "#23d18e",
     brightCyan: "#61D6D6",
-    brightRed: "#bf616e",
+    brightRed: "#E89292",
     brightPurple: "#caa6ec",
     brightYellow: "#efaa8e",
     brightWhite: "#d0d4e6",
@@ -65,6 +66,14 @@ var header = document.getElementById('header')
 var fitAddon = new FitAddon()
 var terminalContainer = document.getElementById('terminal-container')
 term.loadAddon(fitAddon)
+term.loadAddon(new WebLinksAddon(() => { }, {
+  willLinkActivate: (e, uri) => {
+    // set timeout to remove selection
+    setTimeout(() => {
+      vscodeEvent.emit('openLink', uri)
+    }, 100);
+  }
+}))
 term.open(terminalContainer)
 fitAddon.fit()
 term.focus()

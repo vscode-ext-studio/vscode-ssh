@@ -3,7 +3,6 @@ const isProd = process.argv.indexOf('-p') >= 0;
 const path = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = [{
   target: "node",
@@ -59,7 +58,6 @@ module.exports = [{
   },
   plugins: [
     new VueLoaderPlugin(),
-    new CopyWebpackPlugin([{ from: './src/pages/xterm/favicon.ico', to: './webview/xterm' }]),
     new HtmlWebpackPlugin({ inject: true, template: './src/pages/xterm/client.html', chunks: ['webssh2'], filename: 'webview/client.html' }),
     new HtmlWebpackPlugin({ inject: true, template: './src/pages/vue/common.html', chunks: ['connect'], filename: 'webview/connect.html' }),
     new HtmlWebpackPlugin({ inject: true, template: './src/pages/vue/common.html', chunks: ['forward'], filename: 'webview/forward.html' })

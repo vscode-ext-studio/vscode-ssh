@@ -216,7 +216,6 @@
 		"@types/ssh2": "^0.5.43",
 		"@types/vscode": "1.38.0",
 		"clean-webpack-plugin": "^3.0.0",
-		"copy-webpack-plugin": "^5.1.1",
 		"css-loader": "^3.4.2",
 		"file-loader": "^5.1.0",
 		"html-webpack-plugin": "^4.3.0",

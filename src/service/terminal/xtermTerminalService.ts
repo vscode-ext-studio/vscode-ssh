@@ -59,13 +59,13 @@ export class XtermTerminal implements TerminalService {
                     handler.emit('status', 'SSH CONNECTION ESTABLISHED')
                     handler.on('data', (data: string) => {
                         stream.write(data)
-                    })
-                    handler.on('resize', (data) => {
+                    }).on('resize', (data) => {
                         stream.setWindow(data.rows, data.cols, data.height, data.width)
-                    })
-                    handler.on('paste', async () => {
+                    }).on('paste', async () => {
                         const clipboardData = await vscode.env.clipboard.readText()
                         stream.write(clipboardData)
+                    }).on('openLink', uri => {
+                        vscode.env.openExternal(vscode.Uri.parse(uri));
                     })
                     stream.on('data', (data) => {
                         handler.emit('data', data.toString('utf-8'));

@@ -30,14 +30,18 @@ export class ViewOption {
 }
 
 export class Hanlder {
+    
     constructor(public panel: WebviewPanel, private eventEmitter: EventEmitter) { }
-    on(event: string, callback: (content: any) => void): Hanlder {
+    
+    on(event: string, callback: (content: any) => void): this {
         this.eventEmitter.on(event, callback)
         return this;
     }
+
     emit(event: string, content?: any) {
         this.panel.webview.postMessage({ type: event, content })
     }
+
 }
 
 interface ViewState {

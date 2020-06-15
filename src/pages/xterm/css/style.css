@@ -6,10 +6,16 @@ body, html  {
   color: rgb(240, 240, 240);
   height: 100%;
   margin: 0;
+  padding: 0;
 }
+
+.dropup-content {
+    display: none;
+}
+
 #header {
-    color: rgb(240, 240, 240);
-    background-color: rgb(0, 128, 0);
+    background-color: rgb(84, 84, 84);
+    color: #fafafa;
     width: 100%;
     border-color: white;
     border-style: none none solid none;
@@ -20,6 +26,11 @@ body, html  {
     height:19px;
     display: none;
 }
+
+#header a{
+    color: #fafafa;
+}
+
 .box {
     display: block;
     height: 100%;
@@ -28,7 +39,8 @@ body, html  {
     display: block;
     width: calc(100% - 1 px);
     margin: 0 auto;
-    padding: 2px;
+    padding-top: 2px;
+    padding-left: 3px;
     height: calc(100% - 19px);
 }
 #terminal-container .terminal {
@@ -53,9 +65,8 @@ body, html  {
     height: 19px;
 }
 #status {
+    background-color: #338c33;
     display: inline-block;
-    color: rgb(240, 240, 240);
-    background-color: rgb(50, 50, 50);
     padding-left: 10px;
     padding-right: 10px;
     border-color: white;
@@ -76,7 +87,6 @@ body, html  {
     display: inline-block;
     font-size: 16px;
     color: rgb(255, 255, 255);
-    padding-left: 10px;
     z-index: 100;
 }
 #menu:hover .dropup-content {
@@ -84,7 +94,4 @@ body, html  {
 }
 #logBtn, #credentialsBtn, #reauthBtn {
     color: #000;
-}
-#openLogBtn{
-    color: #000000;
 }
