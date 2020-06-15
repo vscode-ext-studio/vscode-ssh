@@ -65,6 +65,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
     async add() {
 
         ViewManager.createWebviewPanel({
+            iconPath: Util.getExtPath("resources", "image", "icon", "add.svg"),
             path: "connect", title: "Add SSH Config", splitView: false,
             eventHandler: (handler) => {
                 handler.on("CONNECT_TO_SQL_SERVER", (content) => {

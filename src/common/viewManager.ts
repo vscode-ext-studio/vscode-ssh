@@ -82,6 +82,10 @@ export class ViewManager {
                         viewOption.initListener(currentStatus.instance)
                     }
                     if (viewOption.receiveListener) { currentStatus.receiveListener = viewOption.receiveListener }
+                    currentStatus.eventEmitter.removeAllListeners()
+                    if (viewOption.eventHandler) {
+                        viewOption.eventHandler(new Hanlder(currentStatus.instance, currentStatus.eventEmitter))
+                    }
                     currentStatus.eventEmitter.emit('init')
                     return Promise.resolve(currentStatus.instance);
                 }
