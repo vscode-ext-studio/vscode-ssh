@@ -25,9 +25,7 @@ function bindSSHConnection(config, netConnection) {
             }
             debug('sshStream:create');
             tunelMark[id] = { connection: sshConnection, stream: sshStream }
-            sshStream.on('finish', () => {
-                forward(sshConnection, null);
-            }).on('error', function (error) {
+            sshStream.on('error', function (error) {
                 console.log(err)
                 delete tunelMark[id]
             });
@@ -38,8 +36,7 @@ function bindSSHConnection(config, netConnection) {
     }
 
     if (tunelMark[id]) {
-        const stream = tunelMark[id].stream
-        netConnection.pipe(stream).pipe(netConnection);
+        forward(tunelMark[id].connection,netConnection)
         return;
     }
 
