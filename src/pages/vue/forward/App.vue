@@ -22,12 +22,14 @@
           {{scope.row.state==true?"running":"stop"}}
         </template>
       </el-table-column>
-      <el-table-column fixed="right" width="150">
+      <el-table-column fixed="right" width="200">
         <template slot="header" slot-scope="scope">
           <el-button type="info" icon="el-icon-circle-plus-outline" size="small" circle @click="createRequest"> </el-button>
           <el-button type="primary" icon="el-icon-refresh" size="small" circle @click="load"> </el-button>
         </template>
         <template slot-scope="scope">
+          <el-button @click="info(scope.row);" type="info" size="small" title="Show command" icon="el-icon-info" circle>
+          </el-button>
           <el-button v-if="!scope.row.state" @click="start(scope.row.id);" type="success" size="small" title="Start" icon="el-icon-video-play" circle>
           </el-button>
           <el-button v-if="scope.row.state" @click="stop(scope.row.id);" type="danger" size="small" title="Stop" icon="el-icon-switch-button" circle>
@@ -80,6 +82,7 @@ export default {
   data() {
     return {
       title: "",
+      config: {},
       forwardList: [],
       error: false,
       errorMessage: "",
@@ -93,7 +96,7 @@ export default {
   },
   mounted() {
     window.addEventListener("message", ({ data }) => {
-      console.log(data)
+      console.log(data);
       if (!data) return;
       switch (data.type) {
         case "forwardList":
@@ -101,8 +104,9 @@ export default {
           this.panel.loading = false;
           this.panel.visible = false;
           break;
-        case "title":
-          this.title = data.content;
+        case "config":
+          this.title = data.content.host;
+          this.config = data.content;
           break;
         case "success":
           this.error = false;
@@ -124,12 +128,17 @@ export default {
       };
       this.panel.visible = true;
     },
-    load(){
+    load() {
       postMessage({ type: "load" });
     },
     confirmUpdate() {
       postMessage({ type: "update", content: this.panel.edit });
       this.panel.loading = true;
+    },
+    info(row) {
+      this.$message(
+        `ssh  -qTnN -L ${row.localHost}:${row.localPort}:${row.remoteHost}:${row.remotePort} ${this.config.username}@${this.config.host}`
+      );
     },
     start(id) {
       postMessage({ type: "start", content: id });
