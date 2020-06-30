@@ -3,6 +3,7 @@ import tunnel = require('./tunnel')
 import { Console } from "../../common/outputChannel";
 import { Util } from "../../common/util";
 import { ViewManager } from "../../common/viewManager";
+import { exec } from "child_process";
 
 export class ForwardInfo {
     id: any;
@@ -49,6 +50,8 @@ export class ForwardService {
                     handler.emit("success")
                 }).on("load", () => {
                     handler.emit("forwardList", this.list(sshConfig))
+                }).on("cmd",(content)=>{
+                    exec(`cmd.exe /C start cmd /C ${content}`)
                 })
             }
         })

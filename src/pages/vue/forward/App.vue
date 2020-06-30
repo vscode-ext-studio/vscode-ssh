@@ -28,13 +28,13 @@
           <el-button type="primary" icon="el-icon-refresh" size="small" circle @click="load"> </el-button>
         </template>
         <template slot-scope="scope">
-          <el-button @click="info(scope.row);" type="info" size="small" title="Show command" icon="el-icon-info" circle>
-          </el-button>
           <el-button v-if="!scope.row.state" @click="start(scope.row.id);" type="success" size="small" title="Start" icon="el-icon-video-play" circle>
           </el-button>
           <el-button v-if="scope.row.state" @click="stop(scope.row.id);" type="danger" size="small" title="Stop" icon="el-icon-switch-button" circle>
           </el-button>
           <el-button @click="openEdit(scope.row);" type="primary" size="small" title="Edit" icon="el-icon-edit" circle>
+          </el-button>
+          <el-button @click="info(scope.row);" type="info" size="small" title="Show command" icon="el-icon-info" circle>
           </el-button>
           <el-button @click="deleteConfirm(scope.row.id)" title="delete" type="danger" size="small" icon="el-icon-delete" circle>
           </el-button>
@@ -136,9 +136,10 @@ export default {
       this.panel.loading = true;
     },
     info(row) {
-      this.$message(
-        `ssh  -qTnN -L ${row.localHost}:${row.localPort}:${row.remoteHost}:${row.remotePort} ${this.config.username}@${this.config.host}`
-      );
+      postMessage({
+        type: "cmd",
+        content: `ssh  -qTnN -L ${row.localHost}:${row.localPort}:${row.remoteHost}:${row.remotePort} ${this.config.username}@${this.config.host}`
+      });
     },
     start(id) {
       postMessage({ type: "start", content: id });
