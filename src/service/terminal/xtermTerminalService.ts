@@ -66,6 +66,8 @@ export class XtermTerminal implements TerminalService {
                         stream.write(clipboardData)
                     }).on('openLink', uri => {
                         vscode.env.openExternal(vscode.Uri.parse(uri));
+                    }).on('dispose',()=>{
+                        end()
                     })
                     stream.on('data', (data) => {
                         handler.emit('data', data.toString('utf-8'));

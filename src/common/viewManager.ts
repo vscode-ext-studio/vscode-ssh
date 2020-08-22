@@ -116,6 +116,7 @@ export class ViewManager {
                 webviewPanel.webview.html = this.buildPath(data, webviewPanel.webview, contextPath);
 
                 webviewPanel.onDidDispose(() => {
+                    this.viewStatu[viewOption.title].eventEmitter.emit("dispose")
                     this.viewStatu[viewOption.title] = null
                 })
                 if (viewOption.eventHandler) {
