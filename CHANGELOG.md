@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.0 - 2020/8/22
+- Support edit connnection and set name.
+- Fix open in terminal fail.
+
 ## 1.5.0 (2020/6/15)
 - Update terminal UI.
 
