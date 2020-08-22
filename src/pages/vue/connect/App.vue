@@ -6,8 +6,12 @@
         Connection error! <span id="errorMessage" v-text="errorMessage"></span><br />
       </p>
     </blockquote>
-
-    <!-- <template id="field-template"> -->
+    <div>
+        <div class="field field__input">
+          <strong>name:</strong>
+          <input class="field__input" placeholder="connection name, can be empty" v-model="connectionOption.name" />
+        </div>
+      </div>
     <div>
       <div class="field field__input">
         <b>host:</b>
@@ -77,6 +81,7 @@ export default {
       connectionOption: {
         host: "",
         port: "22",
+        name:null,
         username: "root",
         password: "",
         private: "",
