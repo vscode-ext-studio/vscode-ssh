@@ -7,11 +7,11 @@
       </p>
     </blockquote>
     <div>
-        <div class="field field__input">
-          <strong>name:</strong>
-          <input class="field__input" placeholder="connection name, can be empty" v-model="connectionOption.name" />
-        </div>
+      <div class="field field__input">
+        <strong>name:</strong>
+        <input class="field__input" placeholder="connection name, can be empty" v-model="connectionOption.name" />
       </div>
+    </div>
     <div>
       <div class="field field__input">
         <b>host:</b>
@@ -81,7 +81,7 @@ export default {
       connectionOption: {
         host: "",
         port: "22",
-        name:null,
+        name: null,
         username: "root",
         password: "",
         private: "",
@@ -98,6 +98,8 @@ export default {
       if (data.type === "CONNECTION_ERROR") {
         this.error = true;
         this.errorMessage = data.content;
+      } else if (data.type === "edit") {
+        this.connectionOption = data.content;
       } else {
         document.write("Connect success!");
       }

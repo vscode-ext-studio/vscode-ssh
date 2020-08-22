@@ -38,6 +38,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
                 if (sshConfig.private && existsSync(sshConfig.private)) {
                     sshConfig.privateKey = require('fs').readFileSync(sshConfig.private)
                 }
+                key=`${sshConfig.name ? sshConfig.name + "_" : ""}${key}`
                 return new ParentNode(sshConfig, key);
             });
             return nodes
@@ -62,13 +63,17 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
         this._onDidChangeTreeData.fire();
     }
 
-    async add() {
+    async save(parentNode?: ParentNode) {
 
         ViewManager.createWebviewPanel({
             iconPath: Util.getExtPath("resources", "image", "icon", "add.svg"),
             path: "connect", title: "Add SSH Config", splitView: false,
             eventHandler: (handler) => {
-                handler.on("CONNECT_TO_SQL_SERVER", (content) => {
+                handler.on("init", () => {
+                    if(parentNode){
+                        handler.emit("edit",parentNode.sshConfig)
+                    }
+                }).on("CONNECT_TO_SQL_SERVER", (content) => {
                     const sshConfig: SSHConfig = content.connectionOption
                     let msg = null;
                     if (!sshConfig.username) {

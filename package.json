@@ -67,6 +67,11 @@
 				}
 			},
 			{
+				"command": "ssh.edit",
+				"title": "Edit Connection",
+				"category": "SSH"
+			},
+			{
 				"command": "ssh.refresh",
 				"title": "Refresh",
 				"category": "SSH",
@@ -98,8 +103,8 @@
 				"title": "New Folder"
 			},
 			{
-				"command": "ssh.IP.copy",
-				"title": "Copy IP"
+				"command": "ssh.host.copy",
+				"title": "Copy Host"
 			},
 			{
 				"command": "ssh.forward.port",
@@ -147,7 +152,7 @@
 					"group": "inline@1"
 				},
 				{
-					"command": "ssh.IP.copy",
+					"command": "ssh.host.copy",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
 					"group": "connection@-2"
 				},
@@ -157,14 +162,19 @@
 					"group": "connection@-1"
 				},
 				{
-					"command": "ssh.file.new",
+					"command": "ssh.edit",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
 					"group": "connection@0"
 				},
 				{
+					"command": "ssh.file.new",
+					"when": "view == github.cweijan.ssh && viewItem == connection",
+					"group": "connection@2"
+				},
+				{
 					"command": "ssh.folder.new",
 					"when": "view == github.cweijan.ssh && viewItem == connection ",
-					"group": "connection@1"
+					"group": "connection@4"
 				},
 				{
 					"command": "ssh.file.new",

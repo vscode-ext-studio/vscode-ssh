@@ -14,12 +14,13 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(
         ...serviceManager.init(),
         ...initCommand({
-            'ssh.add': () => serviceManager.provider.add(),
+            'ssh.add': () => serviceManager.provider.save(),
+            'ssh.edit': (parentNode: ParentNode) => serviceManager.provider.save(parentNode),
             'ssh.connection.terminal': (parentNode: ParentNode) => parentNode.openTerminal(),
             'ssh.connection.delete': (parentNode: ParentNode) => serviceManager.provider.delete(parentNode),
             'ssh.folder.new': (parentNode: ParentNode) => parentNode.newFolder(),
             'ssh.file.new': (parentNode: ParentNode) => parentNode.newFile(),
-            'ssh.IP.copy': (parentNode: ParentNode) => parentNode.copyIP(),
+            'ssh.host.copy': (parentNode: ParentNode) => parentNode.copyIP(),
             'ssh.forward.port': (parentNode: ParentNode) => parentNode.fowardPort(),
             'ssh.file.upload': (parentNode: ParentNode) => parentNode.upload(),
             'ssh.folder.open': (parentNode: ParentNode) => parentNode.openInTeriminal(),
