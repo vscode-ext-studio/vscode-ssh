@@ -24,7 +24,7 @@ export class ParentNode extends AbstractNode {
 
     constructor(readonly sshConfig: SSHConfig, readonly name: string, readonly file?: FileEntry, readonly parentName?: string, iconPath?: string) {
         super(name, TreeItemCollapsibleState.Collapsed);
-        this.id = file ? `${sshConfig.username}@${sshConfig.host}_${sshConfig.port}_${parentName}.${name}` : name;
+        this.id = file ? `${sshConfig.username}@${sshConfig.host}_${sshConfig.port}_${parentName}.${name}` : `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
         this.fullPath = this.parentName + this.name;
         if (!file) {
             this.contextValue = NodeType.CONNECTION;
