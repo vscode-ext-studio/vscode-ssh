@@ -51,17 +51,9 @@ export class ParentNode extends AbstractNode {
             vscode.window.showErrorMessage("Only support private key login!")
             return;
         }
-        vscode.window.showInformationMessage("Creating Socks5 Proxy...")
+        vscode.window.showInformationMessage("Created Socks5 Proxy, Keep window alive...")
         var exec = require('child_process').exec;
-        exec(`ssh -i ${this.sshConfig.private} -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`, (err, stdout) => {
-            if (err) {
-                vscode.window.showErrorMessage(err)
-            } else {
-                vscode.window.showInformationMessage("Create Socks5 Proxy Success!")
-                Console.log(stdout)
-            }
-
-        })
+        exec(`cmd /c start ssh -i ${this.sshConfig.private} -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`)
     }
 
     private forwardService = new ForwardService()
