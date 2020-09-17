@@ -14,6 +14,8 @@ import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { ForwardService } from '../service/forward/forwardService';
+import { error } from 'console';
+import { Console } from '../common/outputChannel';
 
 /**
  * contains connection and folder
@@ -45,8 +47,21 @@ export class ParentNode extends AbstractNode {
     }
 
     public startSocksProxy() {
+        if (!this.sshConfig.private) {
+            vscode.window.showErrorMessage("Only support private key login!")
+            return;
+        }
+        vscode.window.showInformationMessage("Creating Socks5 Proxy...")
         var exec = require('child_process').exec;
-        exec(`cmd /c start ssh  -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`)
+        exec(`ssh -i ${this.sshConfig.private} -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`, (err, stdout) => {
+            if (err) {
+                vscode.window.showErrorMessage(err)
+            } else {
+                vscode.window.showInformationMessage("Create Socks5 Proxy Success!")
+                Console.log(stdout)
+            }
+
+        })
     }
 
     private forwardService = new ForwardService()
