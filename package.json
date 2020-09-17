@@ -2,7 +2,7 @@
 	"name": "vscode-ssh",
 	"displayName": "vscode-ssh",
 	"description": "ssh client for vscode",
-	"version": "1.6.1",
+	"version": "1.6.2",
 	"publisher": "cweijan",
 	"engines": {
 		"vscode": "^1.38.0"
@@ -111,6 +111,10 @@
 				"title": "Forward Port"
 			},
 			{
+				"command": "ssh.socks.port",
+				"title": "Start Socks5 Proxy"
+			},
+			{
 				"command": "ssh.folder.open",
 				"title": "Open In Terminal"
 			},
@@ -154,27 +158,32 @@
 				{
 					"command": "ssh.host.copy",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
-					"group": "connection@-2"
-				},
-				{
-					"command": "ssh.forward.port",
-					"when": "view == github.cweijan.ssh && viewItem == connection",
-					"group": "connection@-1"
+					"group": "0_connection@-2"
 				},
 				{
 					"command": "ssh.edit",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
-					"group": "connection@0"
+					"group": "0_connection@-1"
+				},
+				{
+					"command": "ssh.forward.port",
+					"when": "view == github.cweijan.ssh && viewItem == connection",
+					"group": "1_connection@0"
+				},
+				{
+					"command": "ssh.socks.port",
+					"when": "view == github.cweijan.ssh && viewItem == connection",
+					"group": "1_connection@1"
 				},
 				{
 					"command": "ssh.file.new",
 					"when": "view == github.cweijan.ssh && viewItem == connection",
-					"group": "connection@2"
+					"group": "2_connection@2"
 				},
 				{
 					"command": "ssh.folder.new",
 					"when": "view == github.cweijan.ssh && viewItem == connection ",
-					"group": "connection@4"
+					"group": "2_connection@4"
 				},
 				{
 					"command": "ssh.file.new",

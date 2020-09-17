@@ -24,6 +24,7 @@ export function activate(context: ExtensionContext) {
             'ssh.forward.port': (parentNode: ParentNode) => parentNode.fowardPort(),
             'ssh.file.upload': (parentNode: ParentNode) => parentNode.upload(),
             'ssh.folder.open': (parentNode: ParentNode) => parentNode.openInTeriminal(),
+            'ssh.socks.port': (parentNode: ParentNode) => parentNode.startSocksProxy(),
             'ssh.file.delete': (fileNode: FileNode | ParentNode) => fileNode.delete(),
             'ssh.file.open': (fileNode: FileNode) => fileNode.open(),
             'ssh.file.download': (fileNode: FileNode) => fileNode.download(),

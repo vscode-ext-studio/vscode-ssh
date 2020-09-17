@@ -44,6 +44,11 @@ export class ParentNode extends AbstractNode {
         Util.copyToBoard(this.sshConfig.host)
     }
 
+    public startSocksProxy() {
+        var exec = require('child_process').exec;
+        exec(`cmd /c start ssh  -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`)
+    }
+
     private forwardService = new ForwardService()
     public fowardPort() {
         this.forwardService.createForwardView(this.sshConfig)

@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.6.2 - 2020/9/17
+- Add socks5 proxy.
+
 ## 1.6.0 - 2020/8/22
 - Support edit connnection and set name.
 - Fix open in terminal fail.
