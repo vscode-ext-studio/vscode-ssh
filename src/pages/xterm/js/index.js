@@ -1,36 +1,14 @@
-'use strict'
-
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
+import { vscodeEvent } from "./vscode";
 import { WebLinksAddon } from "xterm-addon-web-links";
-import { library, dom } from '@fortawesome/fontawesome-svg-core'
-import { faBars, faClipboard, faDownload, faKey, faCog } from '@fortawesome/free-solid-svg-icons'
-library.add(faBars, faClipboard, faDownload, faKey, faCog)
-dom.watch()
-
-const vscode = typeof (acquireVsCodeApi) != "undefined" ? acquireVsCodeApi() : null;
-const postMessage = (message) => { if (vscode) { vscode.postMessage(message) } }
-let events = {}
-window.addEventListener('message', ({ data }) => {
-  if (events[data.type]) {
-    events[data.type](data.content);
-  }
-})
-const vscodeEvent = {
-  on(event, data) {
-    events[event] = data
-    return vscodeEvent;
-  },
-  emit(event, data) {
-    postMessage({ type: event, content: data })
-  }
-}
-
+import { SearchAddon } from 'xterm-addon-search';
+import { SearchBarAddon } from 'xterm-addon-search-bar';
 require('xterm/css/xterm.css')
 require('../css/style.css')
 
 var errorExists = false;
-const term = new Terminal({
+const terminal = new Terminal({
   theme: {
     foreground: "#D0D4e6",
     background: "#2f3032",
@@ -59,14 +37,14 @@ const term = new Terminal({
   rightClickSelectsWord: true,
   cursorBlink: true, scrollback: 10000, tabStopWidth: 8, bellStyle: "sound"
 })
-// DOM properties
-var openLogBtn = document.getElementById('openLogBtn')
-var status = document.getElementById('status')
-var header = document.getElementById('header')
-var fitAddon = new FitAddon()
-var terminalContainer = document.getElementById('terminal-container')
-term.loadAddon(fitAddon)
-term.loadAddon(new WebLinksAddon(() => { }, {
+
+const fitAddon = new FitAddon()
+const searchAddon = new SearchAddon();
+const searchAddonBar = new SearchBarAddon({ searchAddon });
+
+terminal.loadAddon(fitAddon)
+terminal.loadAddon(searchAddonBar);
+terminal.loadAddon(new WebLinksAddon(() => { }, {
   willLinkActivate: (e, uri) => {
     // set timeout to remove selection
     setTimeout(() => {
@@ -74,64 +52,63 @@ term.loadAddon(new WebLinksAddon(() => { }, {
     }, 100);
   }
 }))
-term.open(terminalContainer)
+
+terminal.open(document.getElementById('terminal-container'))
 fitAddon.fit()
-term.focus()
-term.onData((data) => {
+terminal.focus()
+terminal.onData((data) => {
   vscodeEvent.emit('data', data)
 })
 
 function resizeScreen() {
   fitAddon.fit()
-  vscodeEvent.emit('resize', { cols: term.cols, rows: term.rows })
+  vscodeEvent.emit('resize', { cols: terminal.cols, rows: terminal.rows })
 }
 
 window.addEventListener('resize', resizeScreen, false)
 window.addEventListener("keyup", event => {
-  if (event.key == "v" && event.ctrlKey) {
-    vscodeEvent.emit('paste')
+  if (event.code == "KeyV" && event.ctrlKey) {
+    document.execCommand('paste')
+  }
+  if (event.code == "KeyF" && event.ctrlKey) {
+    searchAddonBar.show();
   }
 });
+
 window.addEventListener("contextmenu", () => {
   document.execCommand('copy');
+  terminal.clearSelection()
 })
 
-openLogBtn.addEventListener('click', openLogBtn.addEventListener('click', () => {
-  vscodeEvent.emit('openLog')
-  term.focus()
-}))
-
+const status = document.getElementById('status')
 vscodeEvent
+  .on('connecting', content => {
+    terminal.write(content)
+    terminal.focus()
+  })
   .on('data', (content) => {
-    term.write(content)
-    term.focus()
+    terminal.write(content)
+    terminal.focus()
   })
   .on('path', path => {
     vscodeEvent.emit('data', `cd ${path}\n`)
   })
   .on('status', (data) => {
+    resizeScreen()
     status.innerHTML = data
-    term.focus()
+    status.style.backgroundColor = '#338c33'
+    terminal.focus()
   })
   .on('ssherror', (data) => {
     status.innerHTML = data
     status.style.backgroundColor = 'red'
     errorExists = true
   })
-  .on('header', (data) => {
-    if (data) {
-      document.getElementById('headerHost').innerHTML = data
-      header.style.display = 'block'
-      // header is 19px and footer is 19px, recaculate new terminal-container and resize
-      terminalContainer.style.height = 'calc(100% - 38px)'
-      resizeScreen()
-    }
-  })
   .on('error', (err) => {
     if (!errorExists) {
       status.style.backgroundColor = 'red'
       status.innerHTML = 'ERROR: ' + err
     }
-  })
+  });
 
-vscodeEvent.emit('init', { cols: term.cols, rows: term.rows })
+vscodeEvent.emit('init', { cols: terminal.cols, rows: terminal.rows })

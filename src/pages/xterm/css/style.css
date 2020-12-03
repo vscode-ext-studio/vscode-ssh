@@ -24,7 +24,6 @@ body, html  {
     flex: 0 1 auto;
     z-index: 99;
     height:19px;
-    display: none;
 }
 
 #header a{
