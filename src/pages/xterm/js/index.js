@@ -7,27 +7,40 @@ import { SearchBarAddon } from 'xterm-addon-search-bar';
 require('xterm/css/xterm.css')
 require('../css/style.css')
 
+const vscodeStyle = document.documentElement.style;
+function get(name) {
+  return vscodeStyle.getPropertyValue(name)
+}
+
 var errorExists = false;
 const terminal = new Terminal({
   theme: {
-    foreground: "#D0D4e6",
-    background: "#2f3032",
-    brightBlack: "#303845",
-    brightBlue: "#77abe7",
-    brightGreen: "#23d18e",
-    brightCyan: "#61D6D6",
-    brightRed: "#E89292",
-    brightPurple: "#caa6ec",
-    brightYellow: "#efaa8e",
-    brightWhite: "#d0d4e6",
-    black: "#8897b0",
-    blue: "#77abe7",
-    green: "#8fcac0",
-    cyan: "#7bc6c0",
-    red: "#E39194",
-    purple: "#DB797c",
-    yellow: "#DDD7A3",
-    white: "#D0D4e6"
+    foreground: get('--vscode-terminal-foreground'),
+    background: get('--vscode-editor-background'),
+
+    brightBlack: get('--vscode-terminal-ansiBrightBlack'),
+    black: get('--vscode-terminal-ansiBlack'),
+
+    brightBlue: get('--vscode-terminal-ansBrightiBlue'),
+    blue: get('--vscode-terminal-ansiBlue'),
+
+    brightGreen: get('--vscode-terminal-ansiBrightGreen'),
+    green: get('--vscode-terminal-ansiGreen'),
+
+    brightRed:  get('--vscode-terminal-ansiBrightRed'),
+    red:  get('--vscode-terminal-ansiRed'),
+    
+    brightCyan:  get('--vscode-terminal-ansiBrightCyan'),
+    cyan:  get('--vscode-terminal-ansiCyan'),
+
+    brightPurple:  get('--vscode-terminal-ansiBrightMagenta'),
+    purple:  get('--vscode-terminal-ansiMagenta'),
+
+    brightYellow: get('--vscode-terminal-ansiBrightYellow'),
+    yellow: get('--vscode-terminal-ansiYellow'),
+
+    brightWhite: get('--vscode-terminal-ansiBrightwhite'),
+    white: get('--vscode-terminal-ansiwhite'),
   },
   cursorStyle: "bar",
   fontSize: 18,
