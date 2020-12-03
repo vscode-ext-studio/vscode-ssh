@@ -2,7 +2,7 @@ body, html  {
   font-family: helvetica, sans-serif, arial;
   font-size: 1em;
   color: #111;
-  background-color: #2f3032;
+  /* background-color: #2f3032; */
   color: rgb(240, 240, 240);
   height: 100%;
   margin: 0;
@@ -38,14 +38,14 @@ body, html  {
     display: block;
     width: calc(100% - 1 px);
     margin: 0 auto;
-    padding-top: 2px;
-    padding-left: 3px;
+    /* padding-top: 2px;
+    padding-left: 3px; */
     height: calc(100% - 19px);
 }
 #terminal-container .terminal {
     background-color: #000000;
     color: #fafafa;
-    padding: 2px;
+    /* padding: 2px; */
     height: calc(100% - 19px);
 }
 #terminal-container .terminal:focus .terminal-cursor {
