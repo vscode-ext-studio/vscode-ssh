@@ -1,8 +1,8 @@
 {
   "name": "vscode-ssh",
-  "displayName": "vscode-ssh",
-  "description": "ssh client for vscode",
-  "version": "1.7.0",
+  "displayName": "SSH Client",
+  "description": "SSH Client for vscode",
+  "version": "1.7.1",
   "publisher": "cweijan",
   "engines": {
     "vscode": "^1.38.0"
