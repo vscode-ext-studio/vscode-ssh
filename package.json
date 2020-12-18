@@ -88,7 +88,10 @@
       {
         "command": "ssh.connection.terminal",
         "title": "Open Terminal",
-        "icon": "resources/image/terminal.svg"
+        "icon": {
+          "light": "resources/image/light/terminal.png",
+          "dark": "resources/image/terminal.svg"
+        }
       },
       {
         "command": "ssh.terminal.hear",
