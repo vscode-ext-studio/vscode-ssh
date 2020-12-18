@@ -83,7 +83,10 @@
       {
         "command": "ssh.connection.delete",
         "title": "Delete connection",
-        "icon": "resources/image/delete.png"
+        "icon": {
+          "light": "resources/image/light/delete.svg",
+          "dark": "resources/image/dark/delete.png"
+        }
       },
       {
         "command": "ssh.connection.terminal",
