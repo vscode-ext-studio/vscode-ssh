@@ -227,7 +227,22 @@
           "group": "file@2"
         }
       ]
-    }
+    },
+    "configuration": {
+			"type": "object",
+			"title": "SSH Client",
+			"properties": {
+				"vscode-ssh.terimanlTitle": {
+					"type": "string",
+					"enum": [
+						"user@host",
+						"connectionName"
+					],
+					"default": "connectionName",
+					"description": "Set ssh terminal title."
+				}
+			}
+		}
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

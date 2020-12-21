@@ -5,6 +5,7 @@ import { FileManager, FileModel } from "../../manager/fileManager";
 import { SSHConfig } from "../../node/sshConfig";
 import { TerminalService } from "./terminalService";
 import { Util } from "../../common/util";
+import { TerminalTitle } from "./constant";
 
 export class XtermTerminal implements TerminalService {
 
@@ -27,7 +28,7 @@ export class XtermTerminal implements TerminalService {
 
         ViewManager.createWebviewPanel({
             splitView: false, path: "client", iconPath: Util.getExtPath("resources", "image", "icon", "terminal.ico"),
-            title: `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`,
+            title: this.getTitle(sshConfig),
             eventHandler: (handler) => {
                 this.handlerEvent(handler, sshConfig, callback)
             }
@@ -64,12 +65,12 @@ export class XtermTerminal implements TerminalService {
                         stream.setWindow(data.rows, data.cols, data.height, data.width)
                     }).on('openLink', uri => {
                         vscode.env.openExternal(vscode.Uri.parse(uri));
-                    }).on('dispose',()=>{
+                    }).on('dispose', () => {
                         end()
                     })
                     stream.on('data', (data) => {
                         handler.emit('data', data.toString('utf-8'));
-                        dataBuffer=dataBuffer.concat(data)
+                        dataBuffer = dataBuffer.concat(data)
                     })
                     stream.on('close', (code, signal) => {
                         handler.emit('ssherror', 'ssh serssion is close.')
@@ -89,7 +90,7 @@ export class XtermTerminal implements TerminalService {
             client.connect(sshConfig)
         }).on('openLog', async () => {
             const filePath = sshConfig.username + '@' + sshConfig.host
-            await FileManager.record(filePath, dataBuffer.toString().replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,''), FileModel.WRITE)
+            await FileManager.record(filePath, dataBuffer.toString().replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, ''), FileModel.WRITE)
             FileManager.show(filePath).then((textEditor: vscode.TextEditor) => {
                 const lineCount = textEditor.document.lineCount;
                 const range = textEditor.document.lineAt(lineCount - 1).range;
@@ -98,6 +99,14 @@ export class XtermTerminal implements TerminalService {
             })
         })
 
+    }
+
+    private getTitle(sshConfig: SSHConfig): string {
+        const type = vscode.workspace.getConfiguration("vscode-ssh").get<TerminalTitle>("terimanlTitle");
+        if(type==TerminalTitle.connectionName && sshConfig.name){
+            return sshConfig.name;
+        }
+        return `${sshConfig.username}@${sshConfig.host}`
     }
 
 }
