@@ -30,7 +30,7 @@ export class ParentNode extends AbstractNode {
         this.fullPath = this.parentName + this.name;
         if (!file) {
             this.contextValue = NodeType.CONNECTION;
-            this.iconPath = path.join(ServiceManager.context.extensionPath, 'resources', 'image', `connection.svg`);
+            this.iconPath = path.join(ServiceManager.context.extensionPath, 'resources', 'image', `chain.svg`);
         } else {
             this.contextValue = NodeType.FOLDER;
             this.iconPath = path.join(ServiceManager.context.extensionPath, 'resources', 'image', `folder.svg`);
