@@ -9,6 +9,7 @@ import AbstractNode from "./abstracNode";
 import { SSHConfig } from "./sshConfig";
 import ConnectionProvider from './connectionProvider';
 import ServiceManager from '../manager/serviceManager';
+import { extname, resolve } from 'path';
 
 const prettyBytes = require('pretty-bytes');
 
@@ -68,7 +69,7 @@ export class FileNode extends AbstractNode {
 
     download(): any {
 
-        vscode.window.showOpenDialog({ canSelectFiles: false, canSelectMany: false, canSelectFolders: true, openLabel: "Select Download Path" })
+        vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file(this.file.filename),filters: { "Type": [extname(this.file.filename)] }, saveLabel: "Select Download Path" })
             .then(async uri => {
                 if (uri) {
                     const { sftp } = await ClientManager.getSSH(this.sshConfig)
