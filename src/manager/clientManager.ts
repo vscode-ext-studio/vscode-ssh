@@ -35,7 +35,10 @@ export class ClientManager {
                 reject(err)
             }).on('end', () => {
                 this.activeClient[key] = null
-            }).connect({ ...sshConfig, readyTimeout: 1000 * 10 });
+            }).connect({ ...sshConfig, readyTimeout: 1000 * 10
+                // fix no matching client->server cipher
+            // ,algorithms:{cipher:[ "aes256-cbc"]}
+            });
         })
 
     }
