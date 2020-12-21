@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.7.2 - 2020/12/21
+
+- Change terimnal title as connection name.
+- Change terminal light icon.
+- Download support special file name.
+
 ## 1.7.0 - 2020/12/3
 
 - Adjust interaction.
