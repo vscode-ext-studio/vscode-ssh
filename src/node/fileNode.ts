@@ -69,15 +69,15 @@ export class FileNode extends AbstractNode {
 
     download(): any {
 
-        vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file(this.file.filename),filters: { "Type": [extname(this.file.filename)] }, saveLabel: "Select Download Path" })
+        const extName = extname(this.file.filename)?.replace(".","");
+        vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file(this.file.filename),filters: { "Type": [extName] }, saveLabel: "Select Download Path" })
             .then(async uri => {
                 if (uri) {
                     const { sftp } = await ClientManager.getSSH(this.sshConfig)
                     const start = new Date()
-                    const targetPath = uri[0].fsPath + "/" + this.file.filename;
 
                     vscode.window.showInformationMessage(`Start downloading ${this.fullPath}.`)
-                    sftp.fastGet(this.fullPath, targetPath, (err) => {
+                    sftp.fastGet(this.fullPath, uri.fsPath, (err) => {
                         if (err) {
                             vscode.window.showErrorMessage(err.message)
                         } else {
