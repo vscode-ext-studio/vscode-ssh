@@ -80,7 +80,7 @@ export class XtermTerminal implements TerminalService {
                         callback()
                 })
             })
-            client.on('banner', (data: string) => handler.emit('data', data.replace(/\r?\n/g, '\r\n')))
+            // client.on('banner', (data: string) => handler.emit('data', data.replace(/\r?\n/g, '\r\n')))
             client.on('end', (err) => { SSHerror('CONN END BY HOST', err) })
             client.on('close', (err) => { SSHerror('CONN CLOSE', err) })
             client.on('error', (err) => { SSHerror('CONN ERROR', err) })

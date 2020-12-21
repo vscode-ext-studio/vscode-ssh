@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.7.2 - 2020/12/21
+## 1.7.4 - 2020/12/21
 
 - Change terimnal title as connection name.
 - Change terminal light icon.
