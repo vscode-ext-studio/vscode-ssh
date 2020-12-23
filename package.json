@@ -93,7 +93,7 @@
         "title": "Open Terminal",
         "icon": {
           "light": "resources/image/light/terminal.png",
-          "dark": "resources/image/terminal.svg"
+          "dark": "resources/image/dark/terminal.svg"
         }
       },
       {

@@ -27,7 +27,10 @@ export class XtermTerminal implements TerminalService {
     public async openMethod(sshConfig: SSHConfig, callback?: () => void) {
 
         ViewManager.createWebviewPanel({
-            splitView: false, path: "client", iconPath: Util.getExtPath("resources", "image", "icon", "terminal.ico"),
+            splitView: false, path: "client", iconPath: {
+                light: Util.getExtPath("resources", "image", "light", "terminal.png"),
+                dark: Util.getExtPath("resources", "image","dark", "terminal.svg"),
+            },
             title: this.getTitle(sshConfig),
             eventHandler: (handler) => {
                 this.handlerEvent(handler, sshConfig, callback)
@@ -103,7 +106,7 @@ export class XtermTerminal implements TerminalService {
 
     private getTitle(sshConfig: SSHConfig): string {
         const type = vscode.workspace.getConfiguration("vscode-ssh").get<TerminalTitle>("terimanlTitle");
-        if(type==TerminalTitle.connectionName && sshConfig.name){
+        if (type == TerminalTitle.connectionName && sshConfig.name) {
             return sshConfig.name;
         }
         return `${sshConfig.username}@${sshConfig.host}`

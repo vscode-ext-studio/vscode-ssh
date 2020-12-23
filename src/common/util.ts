@@ -9,7 +9,8 @@ export enum Confirm {
 export class Util {
 
     public static getExtPath(...paths: string[]) {
-        return join(ServiceManager.context.extensionPath, ...paths)
+        
+        return vscode.Uri.file(join(ServiceManager.context.extensionPath, ...paths))
     }
 
     public static confirm(placeHolder: string, callback: () => void) {

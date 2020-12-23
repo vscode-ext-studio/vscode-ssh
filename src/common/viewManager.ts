@@ -6,7 +6,7 @@ import { Console } from "../common/outputChannel";
 import { EventEmitter } from 'events'
 
 export class ViewOption {
-    public iconPath?: string;
+    public iconPath?:  vscode.Uri | { light: vscode.Uri; dark: vscode.Uri };
     public path: string;
     public title: string;
     public splitView: boolean = false;
@@ -109,7 +109,7 @@ export class ViewManager {
                     { enableScripts: true, retainContextWhenHidden: true },
                 );
                 if (viewOption.iconPath) {
-                    webviewPanel.iconPath = vscode.Uri.file(viewOption.iconPath)
+                    webviewPanel.iconPath = viewOption.iconPath
                 }
                 this.viewStatu[viewOption.title].instance = webviewPanel
                 const contextPath = path.resolve(targetPath, "..");

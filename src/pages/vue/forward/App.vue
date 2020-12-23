@@ -183,4 +183,7 @@ export default {
 </script>
 
 <style>
+body{
+  padding: 0;
+}
 </style>

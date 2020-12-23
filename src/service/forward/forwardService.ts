@@ -4,6 +4,7 @@ import { Console } from "../../common/outputChannel";
 import { Util } from "../../common/util";
 import { ViewManager } from "../../common/viewManager";
 import { exec } from "child_process";
+import { Uri } from "vscode";
 
 export class ForwardInfo {
     id: any;
