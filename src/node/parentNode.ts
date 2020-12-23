@@ -16,7 +16,7 @@ import { SSHConfig } from "./sshConfig";
 import { ForwardService } from '../service/forward/forwardService';
 import { error } from 'console';
 import { Console } from '../common/outputChannel';
-import { InfoNode } from './infoNode';
+import { InfoNode, LinkNode } from './infoNode';
 
 /**
  * contains connection and folder
@@ -164,21 +164,19 @@ export class ParentNode extends AbstractNode {
 
     build(entryList: FileEntry[], parentName: string): AbstractNode[] {
 
-        const folderList: ParentNode[] = []
-        const fileList: FileNode[] = []
+        const dataList:AbstractNode[]=[]
 
         for (const entry of entryList) {
             if (entry.longname.startsWith("d")) {
-                folderList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
+                dataList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
             } else if (entry.longname.startsWith("l")) {
-                folderList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
+                dataList.push(new LinkNode(entry.filename))
             } else {
-                fileList.push(new FileNode(this.sshConfig, entry, parentName))
+                dataList.push(new FileNode(this.sshConfig, entry, parentName))
             }
         }
 
-        return [].concat(folderList.sort((a, b) => a.name.localeCompare(b.name)))
-            .concat(fileList.sort((a, b) => a.file.filename.localeCompare(b.file.filename)));
+        return [].concat(dataList.sort((a, b) => a.label.localeCompare(b.label)))
     }
 
 }
