@@ -164,19 +164,23 @@ export class ParentNode extends AbstractNode {
 
     build(entryList: FileEntry[], parentName: string): AbstractNode[] {
 
-        const dataList:AbstractNode[]=[]
+        const folderList: AbstractNode[] = []
+        const fileList: AbstractNode[] = []
 
         for (const entry of entryList) {
             if (entry.longname.startsWith("d")) {
-                dataList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
+                folderList.push(new ParentNode(this.sshConfig, entry.filename, entry, parentName))
             } else if (entry.longname.startsWith("l")) {
-                dataList.push(new LinkNode(entry.filename))
+                fileList.push(new LinkNode(entry.filename))
             } else {
-                dataList.push(new FileNode(this.sshConfig, entry, parentName))
+                fileList.push(new FileNode(this.sshConfig, entry, parentName))
             }
         }
 
-        return [].concat(dataList.sort((a, b) => a.label.localeCompare(b.label)))
+        return [].concat(folderList.sort((a, b) => a.label.localeCompare(b.label)))
+            .concat(fileList.sort((a, b) => a.label.localeCompare(b.label)));
     }
+
+
 
 }
