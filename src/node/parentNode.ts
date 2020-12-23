@@ -16,6 +16,7 @@ import { SSHConfig } from "./sshConfig";
 import { ForwardService } from '../service/forward/forwardService';
 import { error } from 'console';
 import { Console } from '../common/outputChannel';
+import { InfoNode } from './infoNode';
 
 /**
  * contains connection and folder
@@ -142,20 +143,22 @@ export class ParentNode extends AbstractNode {
 
     async getChildren(): Promise<AbstractNode[]> {
 
-        const ssh = await ClientManager.getSSH(this.sshConfig)
-        return new Promise((resolve) => {
-            if (ssh == null) {
-                resolve(null);
-                return;
+        return new Promise(async (resolve) => {
+            try {
+                const ssh = await ClientManager.getSSH(this.sshConfig)
+                ssh.sftp.readdir(this.file ? this.parentName + this.name : '/', (err, fileList) => {
+                    if (err) {
+                        resolve([new InfoNode(err.message)]);
+                    } else if (fileList.length == 0) {
+                        resolve([new InfoNode("There are no files in this folder.")]);
+                    } else {
+                        const parent = this.file ? `${this.parentName + this.name}/` : '/';
+                        resolve(this.build(fileList, parent))
+                    }
+                })
+            } catch (err) {
+                resolve([new InfoNode(err.message)])
             }
-            ssh.sftp.readdir(this.file ? this.parentName + this.name : '/', (err, fileList) => {
-                if (err) {
-                    resolve([]);
-                    return;
-                }
-                const parent = this.file ? `${this.parentName + this.name}/` : '/';
-                resolve(this.build(fileList, parent))
-            })
         })
     }
 
