@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.7.5 - Unpublish
+
+- Update icons.
+- Show message when sftp occur error.
+- fix `no matching client->server cipher`
+- Support copy path
+
 ## 1.7.4 - 2020/12/21
 
 - Change terimnal title as connection name.

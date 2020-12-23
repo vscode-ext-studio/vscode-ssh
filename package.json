@@ -101,6 +101,10 @@
         "title": "Open Terminal in hear"
       },
       {
+        "command": "ssh.path.copy",
+        "title": "Copy Path"
+      },
+      {
         "command": "ssh.file.new",
         "title": "New File"
       },
@@ -192,6 +196,16 @@
           "group": "2_connection@4"
         },
         {
+          "command": "ssh.path.copy",
+          "when": "view == github.cweijan.ssh && viewItem != connection",
+          "group": "a@1"
+        },
+        {
+          "command": "ssh.folder.open",
+          "when": "view == github.cweijan.ssh && viewItem == folder",
+          "group": "a@2"
+        },
+        {
           "command": "ssh.file.new",
           "when": "view == github.cweijan.ssh && viewItem == folder",
           "group": "folder@0"
@@ -205,11 +219,6 @@
           "command": "ssh.file.upload",
           "when": "view == github.cweijan.ssh && viewItem == folder",
           "group": "folder@2"
-        },
-        {
-          "command": "ssh.folder.open",
-          "when": "view == github.cweijan.ssh && viewItem == folder",
-          "group": "folder@3"
         },
         {
           "command": "ssh.file.delete",

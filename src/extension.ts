@@ -6,6 +6,7 @@ import { FileNode } from './node/fileNode';
 import { ParentNode } from './node/parentNode';
 import { Console } from './common/outputChannel';
 import { Util } from './common/util';
+import AbstractNode from './node/abstracNode';
 
 export function activate(context: ExtensionContext) {
 
@@ -24,6 +25,7 @@ export function activate(context: ExtensionContext) {
             'ssh.forward.port': (parentNode: ParentNode) => parentNode.fowardPort(),
             'ssh.file.upload': (parentNode: ParentNode) => parentNode.upload(),
             'ssh.folder.open': (parentNode: ParentNode) => parentNode.openInTeriminal(),
+            'ssh.path.copy': (node: AbstractNode) => node.copyPath(),
             'ssh.socks.port': (parentNode: ParentNode) => parentNode.startSocksProxy(),
             'ssh.file.delete': (fileNode: FileNode | ParentNode) => fileNode.delete(),
             'ssh.file.open': (fileNode: FileNode) => fileNode.open(),
