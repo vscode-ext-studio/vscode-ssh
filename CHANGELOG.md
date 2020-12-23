@@ -1,11 +1,12 @@
 # Change Log
 
-## 1.7.5 - Unpublish
+## 1.7.5 - 2020/12/23
 
 - Update icons.
 - Show message when sftp occur error.
 - fix `no matching client->server cipher`
-- Support copy path
+- Support copy path.
+- Add download and upload progress bar.
 
 ## 1.7.4 - 2020/12/21
 
