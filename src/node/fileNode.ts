@@ -1,15 +1,17 @@
+import { createWriteStream } from 'fs';
 import * as path from 'path';
+import { extname } from 'path';
 import { FileEntry } from "ssh2-streams";
 import * as vscode from 'vscode';
 import { TreeItemCollapsibleState } from "vscode";
 import { Command, NodeType } from '../common/constant';
 import { ClientManager } from '../manager/clientManager';
 import { FileManager, FileModel } from '../manager/fileManager';
-import AbstractNode from "./abstracNode";
-import { SSHConfig } from "./sshConfig";
-import ConnectionProvider from './connectionProvider';
 import ServiceManager from '../manager/serviceManager';
-import { extname, resolve } from 'path';
+import AbstractNode from "./abstracNode";
+import ConnectionProvider from './connectionProvider';
+import { SSHConfig } from "./sshConfig";
+var progressStream = require('progress-stream');
 
 const prettyBytes = require('pretty-bytes');
 
@@ -69,22 +71,41 @@ export class FileNode extends AbstractNode {
 
     download(): any {
 
-        const extName = extname(this.file.filename)?.replace(".","");
-        vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file(this.file.filename),filters: { "Type": [extName] }, saveLabel: "Select Download Path" })
+        const extName = extname(this.file.filename)?.replace(".", "");
+        vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file(this.file.filename), filters: { "Type": [extName] }, saveLabel: "Select Download Path" })
             .then(async uri => {
                 if (uri) {
                     const { sftp } = await ClientManager.getSSH(this.sshConfig)
-                    const start = new Date()
-
-                    vscode.window.showInformationMessage(`Start downloading ${this.fullPath}.`)
-                    sftp.fastGet(this.fullPath, uri.fsPath, (err) => {
-                        if (err) {
-                            vscode.window.showErrorMessage(err.message)
-                        } else {
-                            vscode.window.showInformationMessage(`Download ${this.fullPath} success, cost time: ${new Date().getTime() - start.getTime()}`)
-                        }
+                    vscode.window.withProgress({
+                        location: vscode.ProgressLocation.Notification,
+                        title: `Start downloading ${this.fullPath}`,
+                        cancellable:true
+                    }, (progress, token) => {
+                        return new Promise((resolve) => {
+                            const fileReadStream = sftp.createReadStream(this.fullPath)
+                            var str = progressStream({
+                                length: this.file.attrs.size,
+                                time: 100
+                            });
+                            let before=0;
+                            str.on("progress", (progressData: any) => {
+                                if (progressData.percentage == 100) {
+                                    resolve(null)
+                                    vscode.window.showInformationMessage(`Download ${this.fullPath} success, cost time: ${progressData.runtime}s`)
+                                    return;
+                                }
+                                progress.report({ increment: progressData.percentage-before,message:`remaining : ${prettyBytes(progressData.remaining)}` });
+                                before=progressData.percentage
+                            })
+                            str.on("error",err=>{
+                                vscode.window.showErrorMessage(err.message)
+                            })
+                            fileReadStream.pipe(str).pipe(createWriteStream(uri.fsPath));
+                            token.onCancellationRequested(() => {
+                                fileReadStream.destroy()
+                            });
+                        })
                     })
-
                 }
             })
     }
