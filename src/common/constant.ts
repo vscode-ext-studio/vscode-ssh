@@ -1,5 +1,5 @@
 export enum NodeType {
-    CONNECTION = 'connection', FOLDER = 'folder', FILE = "file"
+    CONNECTION = 'connection', FOLDER = 'folder', FILE = "file",INFO = "info"
 }
 
 export enum CacheKey {

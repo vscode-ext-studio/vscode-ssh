@@ -12,7 +12,7 @@ export class ClientManager {
 
     private static activeClient: { [key: string]: SSH } = {};
 
-    public static getSSH(sshConfig: SSHConfig): Promise<SSH> {
+    public static getSSH(sshConfig: SSHConfig,withSftp:boolean=true): Promise<SSH> {
 
         const key = `${sshConfig.host}_${sshConfig.port}_${sshConfig.username}`;
         if (this.activeClient[key]) {
@@ -25,11 +25,17 @@ export class ClientManager {
         const client = new Client();
         return new Promise((resolve, reject) => {
             client.on('ready', () => {
-                client.sftp((err, sftp) => {
-                    if (err) throw err;
-                    this.activeClient[key] = { client, sftp };
+                if(withSftp){
+                    client.sftp((err, sftp) => {
+                        if (err) throw err;
+                        this.activeClient[key] = { client, sftp };
+                        resolve(this.activeClient[key])
+                    })
+                }else{
+                    this.activeClient[key] = { client, sftp:null };
                     resolve(this.activeClient[key])
-                })
+                }
+                
             }).on('error', (err) => {
                 vscode.window.showErrorMessage(err.message)
                 reject(err)

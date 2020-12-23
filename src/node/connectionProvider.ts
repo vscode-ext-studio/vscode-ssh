@@ -93,7 +93,7 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
                         return;
                     }
 
-                    ClientManager.getSSH(sshConfig).then(() => {
+                    ClientManager.getSSH(sshConfig,false).then(() => {
                         const id = `${sshConfig.username}@${sshConfig.host}:${sshConfig.port}`;
                         const configs = this.getConnections();
                         configs[id] = sshConfig;
