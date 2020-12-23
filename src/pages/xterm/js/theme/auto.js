@@ -4,6 +4,9 @@ export const auto = () => {
         return vscodeStyle.getPropertyValue(name)
     }
     return {
+        
+        cursor:get('--vscode-editorCursor-foreground'),
+
         foreground: get('--vscode-terminal-foreground'),
         background: get('--vscode-editor-background'),
 
