@@ -14,9 +14,12 @@ import AbstractNode from "./abstracNode";
 import { FileNode } from './fileNode';
 import { SSHConfig } from "./sshConfig";
 import { ForwardService } from '../service/forward/forwardService';
+var progressStream = require('progress-stream');
 import { error } from 'console';
 import { Console } from '../common/outputChannel';
 import { InfoNode, LinkNode } from './infoNode';
+import prettyBytes = require('pretty-bytes');
+import { createReadStream, createWriteStream, fstatSync, statSync } from 'fs';
 
 /**
  * contains connection and folder
@@ -99,21 +102,55 @@ export class ParentNode extends AbstractNode {
     }
 
     upload(): any {
-        vscode.window.showOpenDialog({ canSelectFiles: true, canSelectMany: false, canSelectFolders: false, openLabel: "Select Download Path" })
+        vscode.window.showOpenDialog({ canSelectFiles: true, canSelectMany: false, canSelectFolders: false, openLabel: "Select Upload Path" })
             .then(async uri => {
                 if (uri) {
                     const { sftp } = await ClientManager.getSSH(this.sshConfig)
                     const targetPath = uri[0].fsPath;
-                    const start = new Date()
-                    vscode.window.showInformationMessage(`Start uploading ${targetPath}.`)
-                    sftp.fastPut(targetPath, this.fullPath + "/" + path.basename(targetPath), err => {
-                        if (err) {
-                            vscode.window.showErrorMessage(err.message)
-                        } else {
-                            vscode.window.showInformationMessage(`Upload ${this.fullPath} success, cost time: ${new Date().getTime() - start.getTime()}`)
-                            vscode.commands.executeCommand(Command.REFRESH)
-                        }
+
+                    vscode.window.withProgress({
+                        location: vscode.ProgressLocation.Notification,
+                        title: `Start uploading ${targetPath}`,
+                        cancellable:true
+                    }, (progress, token) => {
+                        return new Promise((resolve) => {
+                            const fileReadStream = createReadStream(targetPath)
+                            var str = progressStream({
+                                length: statSync(targetPath).size,
+                                time: 100
+                            });
+                            let before=0;
+                            str.on("progress", (progressData: any) => {
+                                if (progressData.percentage == 100) {
+                                    resolve(null)
+                                    vscode.window.showInformationMessage(`Upload ${targetPath} success, cost time: ${progressData.runtime}s`)
+                                    return;
+                                }
+                                progress.report({ increment: progressData.percentage-before,message:`remaining : ${prettyBytes(progressData.remaining)}` });
+                                before=progressData.percentage
+                            })
+                            str.on("error",err=>{
+                                vscode.window.showErrorMessage(err.message)
+                            })
+                            const outStream = sftp.createWriteStream(this.fullPath + "/" + path.basename(targetPath));
+                            fileReadStream.pipe(str).pipe(outStream);
+                            token.onCancellationRequested(() => {
+                                fileReadStream.destroy()
+                                outStream.destroy()
+                            });
+                        })
                     })
+
+                    // const start = new Date()
+                    // vscode.window.showInformationMessage(`Start uploading ${targetPath}.`)
+                    // sftp.fastPut(targetPath, this.fullPath + "/" + path.basename(targetPath), err => {
+                    //     if (err) {
+                    //         vscode.window.showErrorMessage(err.message)
+                    //     } else {
+                    //         vscode.window.showInformationMessage(`Upload ${this.fullPath} success, cost time: ${new Date().getTime() - start.getTime()}`)
+                    //         vscode.commands.executeCommand(Command.REFRESH)
+                    //     }
+                    // })
                 }
             })
     }

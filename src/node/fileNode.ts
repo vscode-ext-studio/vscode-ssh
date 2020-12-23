@@ -100,9 +100,11 @@ export class FileNode extends AbstractNode {
                             str.on("error",err=>{
                                 vscode.window.showErrorMessage(err.message)
                             })
-                            fileReadStream.pipe(str).pipe(createWriteStream(uri.fsPath));
+                            const outStream = createWriteStream(uri.fsPath);
+                            fileReadStream.pipe(str).pipe(outStream);
                             token.onCancellationRequested(() => {
                                 fileReadStream.destroy()
+                                outStream.destroy()
                             });
                         })
                     })
