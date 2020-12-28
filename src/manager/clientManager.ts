@@ -32,8 +32,7 @@ export class ClientManager {
                         resolve(this.activeClient[key])
                     })
                 }else{
-                    this.activeClient[key] = { client, sftp:null };
-                    resolve(this.activeClient[key])
+                    resolve({ client, sftp:null })
                 }
                 
             }).on('error', (err) => {
