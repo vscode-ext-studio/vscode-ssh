@@ -32,6 +32,20 @@
     </div>
     <div>
       <div class="field field__input">
+        <b>cipher:</b>
+        <select v-model="connectionOption.algorithms.cipher[0]">
+          <option value="aes128-cbc">aes128-cbc</option>
+          <option value="aes192-cbc">aes192-cbc</option>
+          <option value="aes256-cbc">aes256-cbc</option>
+          <option value="3des-cbc">3des-cbc</option>
+          <option value="aes128-ctr">aes128-ctr</option>
+          <option value="aes192-ctr">aes192-ctr</option>
+          <option value="aes256-ctr">aes256-ctr</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <div class="field field__input">
         <b>type:</b>
         <select v-model="type">
           <option value="password">password</option>
@@ -69,7 +83,7 @@
 <script>
 const vscode =
   typeof acquireVsCodeApi != "undefined" ? acquireVsCodeApi() : null;
-const postMessage = message => {
+const postMessage = (message) => {
   if (vscode) {
     vscode.postMessage(message);
   }
@@ -85,11 +99,14 @@ export default {
         username: "root",
         password: "",
         private: "",
-        passphrase: ""
+        passphrase: "",
+        algorithms:{
+          cipher:[]
+        }
       },
       type: "password",
       error: false,
-      errorMessage: ""
+      errorMessage: "",
     };
   },
   mounted() {
@@ -111,11 +128,11 @@ export default {
       postMessage({
         type: "CONNECT_TO_SQL_SERVER",
         content: {
-          connectionOption: this.connectionOption
-        }
+          connectionOption: this.connectionOption,
+        },
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

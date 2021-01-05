@@ -1,5 +1,9 @@
 # Change Log
 
+# 1.7.7 - 2021/1/5
+
+- Support special connect cipher.
+
 ## 1.7.5 - 2020/12/23
 
 - Update icons.

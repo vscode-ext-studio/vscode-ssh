@@ -71,6 +71,9 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
             eventHandler: (handler) => {
                 handler.on("init", () => {
                     if(parentNode){
+                        if(!parentNode.sshConfig.algorithms){
+                            parentNode.sshConfig.algorithms={cipher:[]}
+                        }
                         handler.emit("edit",parentNode.sshConfig)
                     }
                 }).on("CONNECT_TO_SQL_SERVER", (content) => {

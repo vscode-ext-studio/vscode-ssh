@@ -16,5 +16,9 @@ export interface SSHConfig {
      */
     privateKey?: Buffer;
     passphrase?: string;
+    algorithms?: Algorithms;
 }
 
+export interface Algorithms {
+    cipher?: string[];
+}
