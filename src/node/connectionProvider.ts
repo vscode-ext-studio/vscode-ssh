@@ -9,6 +9,7 @@ import { ClientManager } from '../manager/clientManager';
 import { ViewManager } from '../common/viewManager';
 import { existsSync } from 'fs';
 import { Util } from '../common/util';
+import { InfoNode } from './infoNode';
 
 
 export default class ConnectionProvider implements TreeDataProvider<AbstractNode> {
@@ -31,19 +32,23 @@ export default class ConnectionProvider implements TreeDataProvider<AbstractNode
 
     // usage: https://www.npmjs.com/package/redis
     async getChildren(element?: AbstractNode) {
-        if (!element) {
-            const config = this.getConnections();
-            const nodes = Object.keys(config).map(key => {
-                const sshConfig = config[key];
-                if (sshConfig.private && existsSync(sshConfig.private)) {
-                    sshConfig.privateKey = require('fs').readFileSync(sshConfig.private)
-                }
-                key=`${sshConfig.name ? sshConfig.name + "_" : ""}${key}`
-                return new ParentNode(sshConfig, key);
-            });
-            return nodes
-        } else {
-            return element.getChildren()
+        try {
+            if (!element) {
+                const config = this.getConnections();
+                const nodes = Object.keys(config).map(key => {
+                    const sshConfig = config[key];
+                    if (sshConfig.private && existsSync(sshConfig.private)) {
+                        sshConfig.privateKey = require('fs').readFileSync(sshConfig.private)
+                    }
+                    key=`${sshConfig.name ? sshConfig.name + "_" : ""}${key}`
+                    return new ParentNode(sshConfig, key);
+                });
+                return nodes
+            } else {
+                return element.getChildren()
+            }
+        } catch (error) {
+            return [new InfoNode(error)]
         }
     }
 
