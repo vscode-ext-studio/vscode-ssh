@@ -51,13 +51,12 @@ export class ParentNode extends AbstractNode {
     }
 
     public startSocksProxy() {
-        if (!this.sshConfig.private) {
-            vscode.window.showErrorMessage("Only support private key login!")
-            return;
-        }
-        vscode.window.showInformationMessage("Created Socks5 Proxy, Keep window alive...")
         var exec = require('child_process').exec;
-        exec(`cmd /c start ssh -i ${this.sshConfig.private} -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`)
+        if (this.sshConfig.private) {
+            exec(`cmd /c start ssh -i ${this.sshConfig.private} -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`)
+        }else{
+            exec(`cmd /c start ssh -qTnN -D 127.0.0.1:1080 root@${this.sshConfig.host}`)
+        }
     }
 
     private forwardService = new ForwardService()
