@@ -1,5 +1,10 @@
 # Change Log
 
+# 1.8.0 - 2021/2/24
+
+- Fix treedata load fail when connection dead.
+- Fix copy/paste bug on terminal.
+
 # 1.7.7 - 2021/1/5
 
 - Support special connect cipher.
