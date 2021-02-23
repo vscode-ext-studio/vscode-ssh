@@ -5,6 +5,7 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 import { SearchAddon } from 'xterm-addon-search';
 import { SearchBarAddon } from 'xterm-addon-search-bar';
 import { auto } from "./theme/auto";
+import { eventNames } from 'process';
 require('xterm/css/xterm.css')
 require('../css/style.css')
 
@@ -49,18 +50,26 @@ function resizeScreen() {
 }
 
 window.addEventListener('resize', resizeScreen, false)
-window.addEventListener("keyup", event => {
-  if (event.code == "KeyV" && event.ctrlKey) {
-    document.execCommand('paste')
+window.addEventListener("keyup", async event => {
+  if (event.code == "KeyV" && event.ctrlKey && !event.altKey && !event.shiftKey) {
+    vscodeEvent.emit('data', await navigator.clipboard.readText())
+    event.preventDefault()
+    event.stopPropagation()
   }
-  if (event.code == "KeyF" && event.ctrlKey) {
+  if (event.code == "KeyF" && event.ctrlKey && !event.altKey && !event.shiftKey) {
     searchAddonBar.show();
+    event.preventDefault()
+    event.stopPropagation()
   }
 });
 
-window.addEventListener("contextmenu", () => {
-  document.execCommand('copy');
-  terminal.clearSelection()
+window.addEventListener("contextmenu",async () => {
+  if (terminal.hasSelection()) {
+    document.execCommand('copy')
+    terminal.clearSelection()
+  } else {
+    vscodeEvent.emit('data', await navigator.clipboard.readText())
+  }
 })
 
 const status = document.getElementById('status')
