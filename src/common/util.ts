@@ -3,7 +3,8 @@ import ServiceManager from "../manager/serviceManager";
 import { join } from "path";
 
 export enum Confirm {
-    YES = "YES", NO = "NO"
+    YES = "YES",
+    NO = "NO"
 }
 
 export class Util {
