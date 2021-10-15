@@ -249,6 +249,11 @@
           ],
           "default": "connectionName",
           "description": "Set ssh terminal title."
+        },
+        "vscode-ssh.connectTimeout": {
+          "type": "number",
+          "default": "30000",
+          "description": "Set ssh connect timeout."
         }
       }
     }
