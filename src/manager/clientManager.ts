@@ -24,6 +24,7 @@ export class ClientManager {
 
         const client = new Client();
         return new Promise((resolve, reject) => {
+            const connectTimeout = vscode.workspace.getConfiguration("vscode-ssh").get<number>("connectTimeout");
             client.on('ready', () => {
                 if(withSftp){
                     client.sftp((err, sftp) => {
@@ -40,7 +41,7 @@ export class ClientManager {
                 reject(err)
             }).on('end', () => {
                 this.activeClient[key] = null
-            }).connect({ ...sshConfig, readyTimeout: 1000 * 10 });
+            }).connect({ ...sshConfig, readyTimeout: connectTimeout });
             // https://blog.csdn.net/a351945755/article/details/22661411
         })
 
