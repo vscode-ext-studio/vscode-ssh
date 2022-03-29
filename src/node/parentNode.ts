@@ -157,14 +157,15 @@ export class ParentNode extends AbstractNode {
     delete(): any {
         vscode.window.showQuickPick(["YES", "NO"], { canPickMany: false }).then(async str => {
             if (str == "YES") {
-                const { sftp } = await ClientManager.getSSH(this.sshConfig)
-                sftp.rmdir(this.fullPath, (err) => {
-                    if (err) {
-                        vscode.window.showErrorMessage(err.message)
+                const { client } = await ClientManager.getSSH(this.sshConfig)
+                const cmd = "rm -rf " + this.fullPath;
+                client.exec(cmd, (err, channel) => {
+                    if(err) {
+                        vscode.window.showErrorMessage(err.message);
                     } else {
-                        vscode.commands.executeCommand(Command.REFRESH)
+                        vscode.commands.executeCommand(Command.REFRESH);
                     }
-                })
+                });
             }
         })
     }
