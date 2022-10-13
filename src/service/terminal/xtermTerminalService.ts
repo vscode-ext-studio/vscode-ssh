@@ -76,7 +76,7 @@ export class XtermTerminal implements TerminalService {
                         dataBuffer = dataBuffer.concat(data)
                     })
                     stream.on('close', (code, signal) => {
-                        handler.emit('ssherror', 'ssh serssion is close.')
+                        handler.emit('ssherror', 'ssh session is close.')
                         end()
                     })
                     if (callback && (typeof callback) == "function")
