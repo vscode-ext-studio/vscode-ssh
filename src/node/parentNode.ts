@@ -68,8 +68,8 @@ export class ParentNode extends AbstractNode {
         vscode.window.showInputBox().then(async input => {
             if (input) {
                 const { sftp } = await ClientManager.getSSH(this.sshConfig)
-                const tempPath = await FileManager.record("temp/" + input, "", FileModel.WRITE);
                 const targetPath = this.fullPath + "/" + input;
+                const tempPath = await FileManager.record(`temp${targetPath}`, "", FileModel.WRITE);
                 sftp.fastPut(tempPath, targetPath, err => {
                     if (err) {
                         vscode.window.showErrorMessage(err.message)

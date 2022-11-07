@@ -53,12 +53,13 @@ export class FileNode extends AbstractNode {
             return;
         }
         const extName = path.extname(this.file.filename).toLowerCase();
+        
         if (extName == ".gz" || extName == ".exe" || extName == ".7z" || extName == ".jar" || extName == ".bin" || extName == ".tar") {
             vscode.window.showErrorMessage(`Not support open ${extName} file!`)
             return;
         }
         const { sftp } = await ClientManager.getSSH(this.sshConfig)
-        const tempPath = await FileManager.record(`temp/${this.file.filename}`, null, FileModel.WRITE);
+        const tempPath = await FileManager.record(`temp${this.fullPath}`, 'Loading...', FileModel.WRITE);
         sftp.fastGet(this.fullPath, tempPath, async (err) => {
             if (err) {
                 vscode.window.showErrorMessage(err.message)

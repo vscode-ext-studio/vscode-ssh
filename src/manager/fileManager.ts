@@ -9,7 +9,9 @@ export class FileManager {
     }
 
     private static check(path: string) {
-        if (!fs.existsSync(path)) fs.mkdirSync(path)
+        if (!fs.existsSync(path)) {
+            fs.mkdirSync(path, { recursive: true })
+        }
     }
 
     public static show(fileName: string) {
