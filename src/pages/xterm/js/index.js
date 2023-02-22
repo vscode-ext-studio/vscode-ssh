@@ -80,7 +80,6 @@ vscodeEvent
   })
   .on('data', (content) => {
     terminal.write(content)
-    terminal.focus()
   })
   .on('path', path => {
     vscodeEvent.emit('data', `cd ${path}\n`)
